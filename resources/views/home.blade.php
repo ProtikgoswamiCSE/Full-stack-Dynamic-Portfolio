@@ -16,7 +16,7 @@
             </ul>
         </div>
         <div>
-            <a href="#contact" class="button">Contact</a>
+            <a href={{ url('/contact') }} class="button">Contact</a>
         </div>
 
         <div class="home__social">
