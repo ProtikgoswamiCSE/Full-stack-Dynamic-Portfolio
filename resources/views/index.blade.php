@@ -20,11 +20,11 @@
                     <ul class="nav__list">
                         <li class="nav__item"><a href={{ url('/home') }}  class="nav__link active-link">Home</a></li>
                         <li class="nav__item"><a href={{ url('/about') }} class="nav__link">About</a></li>
-                        <li class="nav__item"><a href="#skills" class="nav__link">Skills</a></li>
-                        <li class="nav__item"><a href="#Achivement" class="nav__link">Achivement</a></li>
-                        <li class="nav__item"><a href="#Academic" class="nav__link">Academic</a></li>
-                        <li class="nav__item"><a href="#work" class="nav__link">Work</a></li>
-                        <li class="nav__item"><a href="#contact" class="nav__link">Contact</a></li>
+                        <li class="nav__item"><a href={{ url('/skills') }} class="nav__link">Skills</a></li>
+                        <li class="nav__item"><a href={{ url('/achivement') }} class="nav__link">Achivement</a></li>
+                        <li class="nav__item"><a href={{ url('/academic') }} class="nav__link">Academic</a></li>
+                        <li class="nav__item"><a href={{ url('/work') }} class="nav__link">Work</a></li>
+                        <li class="nav__item"><a href={{ url('/contact') }} class="nav__link">Contact</a></li>
                     </ul>
                 </div>
 
@@ -39,6 +39,18 @@
 
         <!--===== ABOUT =====-->
             @yield('about-section')
+
+        <!--===== Achivement =====-->
+            @yield('achivement-section')
+        <!--===== WORK =====-->
+         @yield('work-section')
+        <!--===== ACADEMIC =====-->
+            @yield('academic-section')
+        <!--===== SKILLS =====-->
+            @yield('skills-section')
+
+        <!--===== CONTACT =====-->
+            @yield('contact-section')
         <!--===== FOOTER =====-->
         <footer class="footer">
             <p class="footer__title">Contact with Me</p>

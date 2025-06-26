@@ -37,3 +37,5 @@
             </svg>
         </div>
     </section>
+</main>
+@endsection
