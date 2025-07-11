@@ -23,7 +23,8 @@
                         <li class="nav__item"><a href={{ url('/skills') }} class="nav__link">Skills</a></li>
                         <li class="nav__item"><a href={{ url('/achivement') }} class="nav__link">Achivement</a></li>
                         <li class="nav__item"><a href={{ url('/academic') }} class="nav__link">Academic</a></li>
-                        <li class="nav__item"><a href={{ url('/work') }} class="nav__link">Work</a></li>
+                        <li class="nav__item"><a href={{ url('/Work') }} class="nav__link">Work</a></li>
+                        <li class="nav__item"><a href={{ url('/Image') }} class="nav__link">Image</a></li>
                         <li class="nav__item"><a href={{ url('/contact') }} class="nav__link">Contact</a></li>
                     </ul>
                 </div>
@@ -44,6 +45,8 @@
             @yield('achivement-section')
         <!--===== WORK =====-->
          @yield('work-section')
+        <!--===== Image =====-->
+            @yield('image-section')
         <!--===== ACADEMIC =====-->
             @yield('academic-section')
         <!--===== SKILLS =====-->

@@ -17,8 +17,12 @@ Route::get('/achivement', function () {
 Route::get('/skills', function () {
     return view('skills');
 });
-Route::get('/work', function () {
-    return view('work');
+
+Route::get('/Work', function () {
+    return view('Work');
+});
+Route::get('/Image', function () {
+    return view('Image');
 });
 Route::get('/academic', function () {
     return view('academic');
