@@ -49,6 +49,7 @@ body {
   font-family: var(--body-font);
   font-size: var(--normal-font-size);
   color: var(--second-color);
+  background: transparent; /* Add this line */
 }
 
 h1, h2, p {
@@ -505,5 +506,66 @@ img {
   }
   .home__img {
     width: 450px;
+  }
+}
+
+/* === Dark Mode Styles === */
+body.dark-mode,
+html.dark-mode {
+  background: #181818 !important;
+  color: #e0e0e0 !important;
+}
+body.dark-mode .l-header,
+html.dark-mode .l-header {
+  background-color: #222831e2 !important;
+  box-shadow: 0 1px 4px rgba(20, 20, 20, 0.5);
+}
+body.dark-mode .nav__link,
+html.dark-mode .nav__link,
+body.dark-mode .nav__logo,
+html.dark-mode .nav__logo {
+  color: #00adb5 !important;
+}
+body.dark-mode .footer,
+html.dark-mode .footer {
+  background: #222831 !important;
+  color: #e0e0e0 !important;
+}
+body.dark-mode .section-title,
+html.dark-mode .section-title {
+  color: #00adb5 !important;
+}
+
+/* === Theme Toggle Animation === */
+.theme-toggle-animate {
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(.4,2,.6,1), color 0.3s;
+  will-change: transform;
+}
+.theme-toggle-animate.spin {
+  transform: rotate(180deg) scale(1.2);
+}
+
+@media screen and (max-width: 767px) {
+  body.dark-mode .nav__menu,
+  html.dark-mode .nav__menu {
+    background-color: #222831 !important;
+  }
+  body.dark-mode .footer,
+  html.dark-mode .footer {
+    background: #222831 !important;
+    color: #e0e0e0 !important;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  body.dark-mode .home__img {
+    background: transparent !important;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  body.dark-mode .home__img {
+    background: transparent !important;
   }
 }

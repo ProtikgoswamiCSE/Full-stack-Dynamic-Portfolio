@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script>
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+    </script>
     @stack('styles')
     <title>Protik Goswami - Portfolio</title>
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
@@ -29,9 +34,12 @@
                     </ul>
                 </div>
 
-                <div class="nav__toggle" id="nav-toggle">
-                    <i class='bx bx-menu'></i>
-                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+    <!-- Theme toggle button -->
+    <button id="theme-toggle" style="background: none; border: none; cursor: pointer; font-size: 1.5rem;" title="Toggle dark mode">
+        <span id="theme-toggle-icon">&#9788;</span>
+    </button>
+</div>
             </nav>
         </header>
 
@@ -66,5 +74,7 @@
             </div>
             
         </footer>
+        <script src="{{ asset('resources/js/app.js') }}"></script>
+        <script src="{{ asset('assets/js/theme-toggle.js') }}"></script>
 </body>
 </html>
