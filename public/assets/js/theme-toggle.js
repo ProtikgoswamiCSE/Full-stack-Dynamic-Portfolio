@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 setIcon(willBeDark);
                 themeIcon.classList.remove('spin');
-            }, 200); // icon changes mid-spin
+            }, 100); // icon changes mid-spin
         });
     }
     // Add animation class always
