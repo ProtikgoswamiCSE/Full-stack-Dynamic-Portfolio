@@ -12,6 +12,9 @@
     @stack('styles')
     <title>Protik Goswami - Portfolio</title>
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('resources/css/app.css') }}">
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
             <!--===== HEADER =====-->
@@ -28,7 +31,7 @@
                         <li class="nav__item"><a href={{ url('/skills') }} class="nav__link">Skills</a></li>
                         <li class="nav__item"><a href={{ url('/achivement') }} class="nav__link">Achivement</a></li>
                         <li class="nav__item"><a href={{ url('/academic') }} class="nav__link">Academic</a></li>
-                        <li class="nav__item"><a href={{ url('/Work') }} class="nav__link">Work</a></li>
+                        <li class="nav__item"><a href={{ url('/work') }} class="nav__link">Work</a></li>
                         <li class="nav__item"><a href={{ url('/Image') }} class="nav__link">Image</a></li>
                         <li class="nav__item"><a href={{ url('/contact') }} class="nav__link">Contact</a></li>
                     </ul>
@@ -74,7 +77,7 @@
             </div>
             
         </footer>
-        <script src="{{ asset('resources/js/app.js') }}"></script>
         <script src="{{ asset('assets/js/theme-toggle.js') }}"></script>
+        <script src="{{ asset('resources/js/app.js') }}"></script>
 </body>
 </html>

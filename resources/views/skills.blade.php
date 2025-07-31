@@ -73,7 +73,7 @@
         </div>
         
         <div>              
-            <img src="assets/img/IMG_20231214_030304.jpg" alt="" class="skills__img">
+            <img src="{{ asset('assets/img/IMG_20231214_030304.jpg') }}" alt="" class="skills__img">
         </div>
     </div>
 </section>

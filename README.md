@@ -1,62 +1,148 @@
-![logo](https://github.com/ProtikgoswamiCSE/Full-stack-Dynamic-Portfolio/blob/main/Readme_png/prototype%20image.jpg)
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Protik Goswami - Full Stack Dynamic Portfolio
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern, responsive portfolio website built with Laravel 12, featuring dark mode toggle, smooth animations, and a professional design.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- 🎨 **Modern Design**: Clean and professional portfolio layout
+- 🌙 **Dark Mode**: Toggle between light and dark themes
+- 📱 **Responsive**: Works perfectly on all devices
+- ⚡ **Fast Loading**: Optimized assets and efficient code
+- 🎯 **Sections**: Home, About, Skills, Achievements, Academic, Work, Images, Contact
+- 🔗 **Social Links**: Integrated social media profiles
+- 📍 **Interactive Map**: Google Maps integration for location
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Technologies Used
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend**: Laravel 12 (PHP 8.2+)
+- **Frontend**: HTML5, CSS3, JavaScript
+- **Styling**: Custom CSS with responsive design
+- **Icons**: Font Awesome 6.4.0
+- **Maps**: Google Maps Embed API
 
-## Learning Laravel
+## Prerequisites
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.2 or higher
+- Composer
+- Web server (Apache/Nginx) or PHP built-in server
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Installation
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd Full-stack-Dynamic-Portfolio
+   ```
 
-## Laravel Sponsors
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+3. **Environment Setup**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-### Premium Partners
+4. **Configure Database** (Optional - for future features)
+   ```bash
+   # Edit .env file with your database credentials
+   php artisan migrate
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+5. **Start the development server**
+   ```bash
+   php artisan serve
+   ```
+
+6. **Access the application**
+   Open your browser and navigate to `http://localhost:8000`
+
+## Project Structure
+
+```
+├── app/                    # Laravel application logic
+├── config/                 # Configuration files
+├── database/              # Database migrations and seeders
+├── public/                # Public assets and entry point
+│   ├── assets/           # CSS, JS, and images
+│   └── index.php         # Application entry point
+├── resources/             # Views and frontend assets
+│   ├── views/            # Blade templates
+│   ├── css/              # Stylesheets
+│   └── js/               # JavaScript files
+├── routes/                # Application routes
+└── storage/               # Application storage
+```
+
+## Pages/Sections
+
+- **Home**: Introduction and hero section
+- **About**: Personal information and expertise areas
+- **Skills**: Technical skills with progress bars
+- **Achievements**: Certificates and accomplishments
+- **Academic**: Educational background
+- **Work**: Project showcase
+- **Images**: Photo gallery
+- **Contact**: Contact form and location map
+
+## Customization
+
+### Adding New Sections
+1. Create a new Blade view in `resources/views/`
+2. Add a route in `routes/web.php`
+3. Update the navigation in `resources/views/index.blade.php`
+
+### Modifying Styles
+- Main styles: `public/assets/css/style.css`
+- Additional styles: `resources/css/app.css`
+
+### Theme Customization
+- Dark mode styles are in `public/assets/css/style.css`
+- Theme toggle logic: `public/assets/js/theme-toggle.js`
+
+## Deployment
+
+### For Production
+1. Set `APP_ENV=production` in `.env`
+2. Run `php artisan config:cache`
+3. Run `php artisan route:cache`
+4. Ensure proper file permissions
+5. Configure your web server
+
+### Recommended Hosting
+- Shared hosting with PHP 8.2+ support
+- VPS with LAMP/LEMP stack
+- Cloud platforms (AWS, DigitalOcean, etc.)
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Contact
+
+- **Name**: Protik Goswami
+- **Email**: goswami15-5841@diu.edu.bd
+- **Phone**: 01736744140
+- **LinkedIn**: [Protik Goswami](https://linkedin.com/in/protikgoswami)
+- **GitHub**: [ProtikgoswamiCSE](https://github.com/ProtikgoswamiCSE)
+
+## Acknowledgments
+
+- Laravel Framework
+- Font Awesome for icons
+- Google Maps for location embedding
+- All contributors and supporters
+
+---
+
+**Note**: This portfolio is actively maintained and updated. For the latest version, please check the repository.

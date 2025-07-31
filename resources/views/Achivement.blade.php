@@ -9,7 +9,7 @@
 
     <div class="about__container bd-grid">
         <div class="about__img">
-            <img src="assets/img/goedu.png" alt="">
+            <img src="{{ asset('assets/img/goedu.png') }}" alt="">
         </div>
         
         <div>
@@ -19,7 +19,7 @@
     </div>
     <div class="about__container bd-grid">
         <div class="about__img">
-            <img src="assets/img/goedu1.png" alt="">
+            <img src="{{ asset('assets/img/goedu1.png') }}" alt="">
         </div>
         
         <div>
@@ -28,7 +28,7 @@
     </div>
     <div class="about__container bd-grid">
         <div class="about__img">
-            <img src="assets/img/goedu2.png" alt="">
+            <img src="{{ asset('assets/img/goedu2.png') }}" alt="">
         </div>
         
         <div>
@@ -37,7 +37,7 @@
     </div>
         <div class="about__container bd-grid">
         <div class="about__img">
-            <img src="assets/img/datathon.png" alt="">
+            <img src="{{ asset('assets/img/datathon.png') }}" alt="">
         </div>
         
         <div>
@@ -49,7 +49,7 @@ highlighted expertise in data science, analytics, and problem-solving.</p>
         </div>                                   
     </div> <div class="about__container bd-grid">
         <div class="about__img">
-            <img src="assets/img/2210145.png" alt="">
+            <img src="{{ asset('assets/img/2210145.png') }}" alt="">
         </div>
         
         <div>

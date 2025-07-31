@@ -1,11 +1,59 @@
-@import 'tailwindcss';
+/* Basic Tailwind-like utilities */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,opsz,wght@0,12..24,100..900;1,12..24,100..900&display=swap');
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
-
-@theme {
+:root {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* Basic utility classes */
+.container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+    .container {
+        max-width: 640px;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: 768px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        max-width: 1024px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .container {
+        max-width: 1280px;
+    }
+}
+
+/* Dark mode support */
+.dark-mode {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+.dark-mode * {
+    border-color: #333333;
+}
+
+/* Theme toggle animation */
+.theme-toggle-animate {
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle-animate.spin {
+    transform: rotate(180deg);
 }

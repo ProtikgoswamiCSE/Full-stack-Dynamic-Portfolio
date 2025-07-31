@@ -8,7 +8,7 @@
 
     <div class="about__container bd-grid">
         <div class="about__img">
-            <img src="assets/img/About11.jpg" alt="">
+            <img src="{{ asset('assets/img/About11.jpg') }}" alt="">
         </div>
         
         <div>
@@ -21,7 +21,7 @@
     </div>
     <div class="about__container bd-grid">
         <div class="about__img">
-            <img src="assets/img/ttt.gif" alt="">
+            <img src="{{ asset('assets/img/ttt.gif') }}" alt="">
         </div>
         
         <div>
@@ -31,7 +31,7 @@
     </div>
     <div class="about__container bd-grid">
         <div class="about__img">
-            <img src="assets/img/0_NgUtI3tYLhuq5Vy0.gif" alt="">
+            <img src="{{ asset('assets/img/0_NgUtI3tYLhuq5Vy0.gif') }}" alt="">
         </div>
         
         <div>
@@ -41,7 +41,7 @@
     </div>
     <div class="about__container bd-grid">
         <div class="about__img">
-            <img src="assets/img/Cyber Security.gif" alt="">
+            <img src="{{ asset('assets/img/Cyber Security.gif') }}" alt="">
         </div>
         
         <div>

@@ -18,8 +18,8 @@ Route::get('/skills', function () {
     return view('skills');
 });
 
-Route::get('/Work', function () {
-    return view('Work');
+Route::get('/work', function () {
+    return view('work');
 });
 Route::get('/Image', function () {
     return view('Image');
