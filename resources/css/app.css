@@ -54,6 +54,18 @@
     transition: transform 0.3s ease;
 }
 
+
+
+
+
+
+
+/* Smooth animation for the icon */
 .theme-toggle-animate.spin {
-    transform: rotate(180deg);
+    animation: spin 0.3s ease-in-out;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }

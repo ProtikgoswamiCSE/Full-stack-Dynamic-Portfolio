@@ -5,34 +5,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Helper: set icon
     function setIcon(isDark) {
-        if (isDark) {
-            themeIcon.textContent = '🌙';
-        } else {
-            themeIcon.textContent = '☀️';
-        }
+        themeIcon.textContent = isDark ? '🌙' : '☀️';
     }
 
     // Initial state
-    const isDark = localStorage.getItem('theme') === 'dark';
-    if (isDark) {
+    const isDarkStored = localStorage.getItem('theme') === 'dark';
+    if (isDarkStored) {
         body.classList.add('dark-mode');
     }
-    setIcon(isDark);
+    setIcon(isDarkStored);
 
     if (themeToggle) {
         themeToggle.addEventListener('click', function () {
-            const willBeDark = !body.classList.contains('dark-mode');
+            const isDarkNow = body.classList.contains('dark-mode');
+            const willBeDark = !isDarkNow;
+
+            // Toggle theme immediately
             body.classList.toggle('dark-mode');
             localStorage.setItem('theme', willBeDark ? 'dark' : 'light');
 
-            // Animate icon
+            // Set icon immediately
+            setIcon(willBeDark);
+
+            // Animate icon (optional)
             themeIcon.classList.add('spin');
             setTimeout(() => {
-                setIcon(willBeDark);
                 themeIcon.classList.remove('spin');
-            }, 100); // icon changes mid-spin
+            }, 300); // match your spin animation duration
         });
     }
-    // Add animation class always
+
+    // Always add animation class (if needed)
     themeIcon.classList.add('theme-toggle-animate');
-}); 
+});

@@ -96,3 +96,13 @@ html.dark-mode .card {
   background: #23272b !important;
   box-shadow: 0 6px 32px rgba(0,0,0,0.32);
 } 
+
+/* Smooth animation for the icon */
+.theme-toggle-animate.spin {
+    animation: spin 0.3s ease-in-out;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

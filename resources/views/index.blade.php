@@ -4,11 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script>
-    if (localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark-mode');
+   <script>
+  // This runs before DOMContentLoaded
+  (function () {
+    try {
+      const isDark = localStorage.getItem('theme') === 'dark';
+      if (isDark) {
+        document.documentElement.classList.add('dark-mode');
+      }
+    } catch (e) {
+      // fail silently
     }
-    </script>
+  })();
+</script>
+
     @stack('styles')
     <title>Protik Goswami - Portfolio</title>
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
