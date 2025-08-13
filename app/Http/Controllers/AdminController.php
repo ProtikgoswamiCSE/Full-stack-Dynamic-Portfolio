@@ -33,20 +33,24 @@ class AdminController extends Controller
      */
     public function updateHome(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'subtitle' => 'required|string|max:255',
-            'skills_list' => 'required|string',
-            'contact_button_text' => 'required|string|max:100',
-        ]);
+        try {
+            $request->validate([
+                'title' => 'required|string|max:500',
+                'subtitle' => 'required|string|max:255',
+                'skills_list' => 'required|string|max:1000',
+                'contact_button_text' => 'required|string|max:100',
+            ]);
 
-        // Update each section
-        HomeContent::updateContent('title', $request->title);
-        HomeContent::updateContent('subtitle', $request->subtitle);
-        HomeContent::updateContent('skills_list', $request->skills_list);
-        HomeContent::updateContent('contact_button_text', $request->contact_button_text);
+            // Update each section
+            HomeContent::updateContent('title', $request->title);
+            HomeContent::updateContent('subtitle', $request->subtitle);
+            HomeContent::updateContent('skills_list', $request->skills_list);
+            HomeContent::updateContent('contact_button_text', $request->contact_button_text);
 
-        return redirect()->route('admin.edit-home')->with('success', 'Home page updated successfully!');
+            return redirect()->route('admin.edit-home')->with('success', 'Home page updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.edit-home')->with('error', 'Error updating home page: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -54,22 +58,26 @@ class AdminController extends Controller
      */
     public function addSocialLink(Request $request)
     {
-        $request->validate([
-            'platform' => 'required|string|max:50',
-            'name' => 'required|string|max:100',
-            'icon_class' => 'required|string|max:100',
-            'url' => 'required|url|max:500',
-        ]);
+        try {
+            $request->validate([
+                'platform' => 'required|string|max:50',
+                'name' => 'required|string|max:100',
+                'icon_class' => 'required|string|max:100',
+                'url' => 'required|url|max:500',
+            ]);
 
-        $socialLink = new SocialMediaLink();
-        $socialLink->platform = $request->platform;
-        $socialLink->name = $request->name;
-        $socialLink->icon_class = $request->icon_class;
-        $socialLink->url = $request->url;
-        $socialLink->order = SocialMediaLink::getNextOrder();
-        $socialLink->save();
+            $socialLink = new SocialMediaLink();
+            $socialLink->platform = $request->platform;
+            $socialLink->name = $request->name;
+            $socialLink->icon_class = $request->icon_class;
+            $socialLink->url = $request->url;
+            $socialLink->order = SocialMediaLink::getNextOrder();
+            $socialLink->save();
 
-        return redirect()->route('admin.edit-home')->with('success', 'Social media link added successfully!');
+            return redirect()->route('admin.edit-home')->with('success', 'Social media link added successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.edit-home')->with('error', 'Error adding social media link: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -77,19 +85,23 @@ class AdminController extends Controller
      */
     public function updateSocialLink(Request $request, $id)
     {
-        $request->validate([
-            'platform' => 'required|string|max:50',
-            'name' => 'required|string|max:100',
-            'icon_class' => 'required|string|max:100',
-            'url' => 'required|url|max:500',
-            'order' => 'required|integer|min:1',
-            'is_active' => 'boolean',
-        ]);
+        try {
+            $request->validate([
+                'platform' => 'required|string|max:50',
+                'name' => 'required|string|max:100',
+                'icon_class' => 'required|string|max:100',
+                'url' => 'required|url|max:500',
+                'order' => 'required|integer|min:1',
+                'is_active' => 'boolean',
+            ]);
 
-        $socialLink = SocialMediaLink::findOrFail($id);
-        $socialLink->update($request->all());
+            $socialLink = SocialMediaLink::findOrFail($id);
+            $socialLink->update($request->all());
 
-        return redirect()->route('admin.edit-home')->with('success', 'Social media link updated successfully!');
+            return redirect()->route('admin.edit-home')->with('success', 'Social media link updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.edit-home')->with('error', 'Error updating social media link: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -97,10 +109,14 @@ class AdminController extends Controller
      */
     public function deleteSocialLink($id)
     {
-        $socialLink = SocialMediaLink::findOrFail($id);
-        $socialLink->delete();
+        try {
+            $socialLink = SocialMediaLink::findOrFail($id);
+            $socialLink->delete();
 
-        return redirect()->route('admin.edit-home')->with('success', 'Social media link deleted successfully!');
+            return redirect()->route('admin.edit-home')->with('success', 'Social media link deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.edit-home')->with('error', 'Error deleting social media link: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -108,12 +124,16 @@ class AdminController extends Controller
      */
     public function toggleSocialLink($id)
     {
-        $socialLink = SocialMediaLink::findOrFail($id);
-        $socialLink->is_active = !$socialLink->is_active;
-        $socialLink->save();
+        try {
+            $socialLink = SocialMediaLink::findOrFail($id);
+            $socialLink->is_active = !$socialLink->is_active;
+            $socialLink->save();
 
-        $status = $socialLink->is_active ? 'activated' : 'deactivated';
-        return redirect()->route('admin.edit-home')->with('success', "Social media link {$status} successfully!");
+            $status = $socialLink->is_active ? 'activated' : 'deactivated';
+            return redirect()->route('admin.edit-home')->with('success', "Social media link {$status} successfully!");
+        } catch (\Exception $e) {
+            return redirect()->route('admin.edit-home')->with('error', 'Error toggling social media link: ' . $e->getMessage());
+        }
     }
 
     /**

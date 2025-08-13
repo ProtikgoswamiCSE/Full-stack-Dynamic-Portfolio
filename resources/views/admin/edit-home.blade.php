@@ -114,13 +114,20 @@
                         </div>
                     @endif
 
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
                     <!-- Home Content Form -->
                     <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="mb-0"><i class="fas fa-home me-2"></i>Home Page Content</h5>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('admin.update-home') }}" method="POST">
+                            <form action="{{ route('admin.update-home') }}" method="POST" onsubmit="return validateForm()">
                                 @csrf
                                 
                                 <!-- Title Section -->
@@ -194,13 +201,13 @@
                                                             </a>
                                                         </div>
                                                         <div class="d-flex gap-2">
-                                                            <button class="btn btn-sm btn-outline-primary" onclick="editSocialLink({{ $link->id }})">
+                                                            <button class="btn btn-sm btn-outline-primary" onclick="editSocialLink('{{ $link->id }}')">
                                                                 <i class="fas fa-edit"></i>
                                                             </button>
-                                                            <button class="btn btn-sm btn-outline-{{ $link->is_active ? 'warning' : 'success' }}" onclick="toggleSocialLink({{ $link->id }})">
+                                                            <button class="btn btn-sm btn-outline-{{ $link->is_active ? 'warning' : 'success' }}" onclick="toggleSocialLink('{{ $link->id }}')">
                                                                 <i class="fas fa-{{ $link->is_active ? 'eye-slash' : 'eye' }}"></i>
                                                             </button>
-                                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSocialLink({{ $link->id }})">
+                                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSocialLink('{{ $link->id }}')">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
                                                         </div>
@@ -327,46 +334,118 @@
     <script>
         // Live preview functionality
         function updateTitlePreview() {
-            const titleInput = document.getElementById('title');
-            const titlePreview = document.getElementById('title-preview');
-            titlePreview.innerHTML = titleInput.value;
+            try {
+                const titleInput = document.getElementById('title');
+                const titlePreview = document.getElementById('title-preview');
+                if (titleInput && titlePreview) {
+                    titlePreview.innerHTML = titleInput.value || '';
+                }
+            } catch (error) {
+                console.error('Error updating title preview:', error);
+            }
         }
 
         function updateSkillsPreview() {
-            const skillsInput = document.getElementById('skills_list');
-            const skillsPreview = document.getElementById('skills-preview');
-            const skills = skillsInput.value.split('\n').filter(skill => skill.trim() !== '');
+            try {
+                const skillsInput = document.getElementById('skills_list');
+                const skillsPreview = document.getElementById('skills-preview');
+                if (skillsInput && skillsPreview) {
+                    const skills = skillsInput.value.split('\n').filter(skill => skill.trim() !== '');
+                    skillsPreview.innerHTML = skills.map(skill => 
+                        `<li>${skill.trim()}</li>`
+                    ).join('');
+                }
+            } catch (error) {
+                console.error('Error updating skills preview:', error);
+            }
+        }
+
+        // Form validation
+        function validateForm() {
+            const title = document.getElementById('title').value.trim();
+            const subtitle = document.getElementById('subtitle').value.trim();
+            const skills = document.getElementById('skills_list').value.trim();
+            const contactButton = document.getElementById('contact_button_text').value.trim();
             
-            skillsPreview.innerHTML = skills.map(skill => 
-                `<li>${skill.trim()}</li>`
-            ).join('');
+            if (!title) {
+                alert('Please enter a title');
+                return false;
+            }
+            if (!subtitle) {
+                alert('Please enter a subtitle');
+                return false;
+            }
+            if (!skills) {
+                alert('Please enter at least one skill');
+                return false;
+            }
+            if (!contactButton) {
+                alert('Please enter contact button text');
+                return false;
+            }
+            return true;
         }
 
         // Social media link management
         function editSocialLink(id) {
-            // Get link data and populate modal
-            const links = @json($socialLinks);
-            const linkData = links.find(l => l.id === id);
-            
-            if (linkData) {
-                document.getElementById('edit_platform').value = linkData.platform;
-                document.getElementById('edit_name').value = linkData.name;
-                document.getElementById('edit_icon_class').value = linkData.icon_class;
-                document.getElementById('edit_url').value = linkData.url;
-                document.getElementById('edit_order').value = linkData.order;
-                document.getElementById('edit_is_active').checked = linkData.is_active;
+            try {
+                // Get link data and populate modal
+                const links = JSON.parse('@json($socialLinks)');
+                const linkData = links.find(l => l.id == id);
                 
-                document.getElementById('editSocialLinkForm').action = `{{ url('admin/social-links') }}/${id}/update`;
-                
-                new bootstrap.Modal(document.getElementById('editSocialLinkModal')).show();
+                if (linkData) {
+                    document.getElementById('edit_platform').value = linkData.platform || '';
+                    document.getElementById('edit_name').value = linkData.name || '';
+                    document.getElementById('edit_icon_class').value = linkData.icon_class || '';
+                    document.getElementById('edit_url').value = linkData.url || '';
+                    document.getElementById('edit_order').value = linkData.order || 1;
+                    document.getElementById('edit_is_active').checked = linkData.is_active || false;
+                    
+                    document.getElementById('editSocialLinkForm').action = `{{ url('admin/social-links') }}/${id}/update`;
+                    
+                    new bootstrap.Modal(document.getElementById('editSocialLinkModal')).show();
+                } else {
+                    alert('Social media link not found!');
+                }
+            } catch (error) {
+                console.error('Error editing social link:', error);
+                alert('Error loading social media link data. Please try again.');
             }
         }
 
         function deleteSocialLink(id) {
             if (confirm('Are you sure you want to delete this social media link?')) {
+                try {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `{{ url('admin/social-links') }}/${id}/delete`;
+                    
+                    const csrfToken = document.createElement('input');
+                    csrfToken.type = 'hidden';
+                    csrfToken.name = '_token';
+                    csrfToken.value = '{{ csrf_token() }}';
+                    
+                    const methodField = document.createElement('input');
+                    methodField.type = 'hidden';
+                    methodField.name = '_method';
+                    methodField.value = 'DELETE';
+                    
+                    form.appendChild(csrfToken);
+                    form.appendChild(methodField);
+                    document.body.appendChild(form);
+                    form.submit();
+                } catch (error) {
+                    console.error('Error deleting social link:', error);
+                    alert('Error deleting social media link. Please try again.');
+                }
+            }
+        }
+
+        function toggleSocialLink(id) {
+            try {
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = `{{ url('admin/social-links') }}/${id}/delete`;
+                form.action = `{{ url('admin/social-links') }}/${id}/toggle`;
                 
                 const csrfToken = document.createElement('input');
                 csrfToken.type = 'hidden';
@@ -376,43 +455,34 @@
                 const methodField = document.createElement('input');
                 methodField.type = 'hidden';
                 methodField.name = '_method';
-                methodField.value = 'DELETE';
+                methodField.value = 'PATCH';
                 
                 form.appendChild(csrfToken);
                 form.appendChild(methodField);
                 document.body.appendChild(form);
                 form.submit();
+            } catch (error) {
+                console.error('Error toggling social link:', error);
+                alert('Error updating social media link status. Please try again.');
             }
         }
 
-        function toggleSocialLink(id) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `{{ url('admin/social-links') }}/${id}/toggle`;
-            
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = '{{ csrf_token() }}';
-            
-            const methodField = document.createElement('input');
-            methodField.type = 'hidden';
-            methodField.name = '_method';
-            methodField.value = 'PATCH';
-            
-            form.appendChild(csrfToken);
-            form.appendChild(methodField);
-            document.body.appendChild(form);
-            form.submit();
-        }
-
         // Add event listeners
-        document.getElementById('title').addEventListener('input', updateTitlePreview);
-        document.getElementById('skills_list').addEventListener('input', updateSkillsPreview);
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleInput = document.getElementById('title');
+            const skillsInput = document.getElementById('skills_list');
+            
+            if (titleInput) {
+                titleInput.addEventListener('input', updateTitlePreview);
+            }
+            if (skillsInput) {
+                skillsInput.addEventListener('input', updateSkillsPreview);
+            }
 
-        // Initialize previews
-        updateTitlePreview();
-        updateSkillsPreview();
+            // Initialize previews
+            updateTitlePreview();
+            updateSkillsPreview();
+        });
     </script>
 </body>
 </html> 
