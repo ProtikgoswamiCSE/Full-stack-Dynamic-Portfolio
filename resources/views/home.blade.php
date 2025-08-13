@@ -7,22 +7,32 @@
 <main class="l-main">
     <section class="home bd-grid" id="home">
         <div class="home__data">
-            <h1 class="home__title">Hi there,<br>I'm <span class="home__title-color">Protik Goswami</span><br>Web Designer</h1>
+            <h1 class="home__title">{!! \App\Models\HomeContent::getContent('title', 'Hi there,<br>I\'m <span class="home__title-color">Protik Goswami</span><br>Web Designer') !!}</h1>
             <ul class="home__title_li">
-                <li> * Network Security Specialist</li>
-                <li> * Programming</li>
-                <li> * UI/UX Design</li>
-                <li> * Artificial Intelligence</li>
+                @php
+                    $skills = \App\Models\HomeContent::getContent('skills_list', "* Network Security Specialist\n* Programming\n* UI/UX Design\n* Artificial Intelligence");
+                    $skillsArray = explode("\n", $skills);
+                @endphp
+                @foreach($skillsArray as $skill)
+                    @if(trim($skill) !== '')
+                        <li>{{ trim($skill) }}</li>
+                    @endif
+                @endforeach
             </ul>
         </div>
         <div>
-            <a href={{ url('/contact') }} class="button">Contact</a>
+            <a href={{ url('/contact') }} class="button">{{ \App\Models\HomeContent::getContent('contact_button_text', 'Contact') }}</a>
         </div>
 
         <div class="home__social">
-            <a href="https://github.com/ProtikgoswamiCSE" class="home__social-icon"><i class='fa-brands fa-github'></i></a>
-            <a href="https://www.facebook.com/protik.goswami.140" class="home__social-icon"><i class='fa-brands fa-facebook' ></i></a>
-            <a href="https://www.instagram.com/goswamiprotik/" class="home__social-icon"><i class='fa-brands fa-instagram' ></i></a>
+            @php
+                $socialLinks = \App\Models\SocialMediaLink::getActiveLinks();
+            @endphp
+            @foreach($socialLinks as $link)
+                <a href="{{ $link->url }}" class="home__social-icon" title="{{ $link->name }}">
+                    <i class="{{ $link->icon_class }}"></i>
+                </a>
+            @endforeach
         </div>
 
         <div class="home__img">
