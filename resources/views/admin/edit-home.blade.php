@@ -81,18 +81,19 @@
                     </div>
                     
                     <nav class="nav flex-column">
-                        <a class="nav-link" href="{{ route('admin.dashboard') }}">
-                            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                        </a>
-                        <a class="nav-link active" href="{{ route('admin.edit-home') }}">
-                            <i class="fas fa-home me-2"></i> Edit Home Page
-                        </a>
-                        <a class="nav-link" href="{{ route('admin.initialize-content') }}">
-                            <i class="fas fa-database me-2"></i> Initialize Content
-                        </a>
-                        <a class="nav-link" href="{{ url('/') }}" target="_blank">
-                            <i class="fas fa-external-link-alt me-2"></i> View Site
-                        </a>
+                        <a class="{{ request()->routeIs('admin.edit-home') ? 'nav-link active' : 'nav-link' }}" href="{{ route('admin.edit-home') }}"><i class="fas fa-home me-2"></i> Home</a>
+                        <a class="{{ request()->routeIs('admin.edit-home') && !request()->has('section') ? 'nav-link active' : 'nav-link' }}" href="{{ route('admin.edit-home') }}"><i class="fas fa-home me-2"></i> Edit Home Page</a>
+                        <a class="{{ request()->routeIs('admin.edit-home') && request('section')==='skills' ? 'nav-link active' : 'nav-link' }}" href="{{ route('admin.edit-home') }}?section=skills"><i class="fas fa-code me-2"></i> Edit Skills</a>
+                        <a class="{{ request()->routeIs('admin.edit-home') && request('section')==='social' ? 'nav-link active' : 'nav-link' }}" href="{{ route('admin.edit-home') }}?section=social"><i class="fas fa-share-alt me-2"></i> Edit Social Links</a>
+                        <a class="{{ request()->routeIs('admin.edit-about') ? 'nav-link active' : 'nav-link' }}" href="{{ route('admin.edit-about') }}"><i class="fas fa-user me-2"></i> Edit About</a>
+                        <a class="{{ request()->routeIs('admin.edit-achivement') ? 'nav-link active' : 'nav-link' }}" href="{{ route('admin.edit-achivement') }}"><i class="fas fa-trophy me-2"></i> Edit Achivement</a>
+                        <a class="{{ request()->routeIs('admin.edit-academic') ? 'nav-link active' : 'nav-link' }}" href="{{ route('admin.edit-academic') }}"><i class="fas fa-graduation-cap me-2"></i> Edit Academic</a>
+                        <a class="{{ request()->routeIs('admin.edit-work') ? 'nav-link active' : 'nav-link' }}" href="{{ route('admin.edit-work') }}"><i class="fas fa-briefcase me-2"></i> Edit Work</a>
+                        <a class="{{ request()->routeIs('admin.edit-image') ? 'nav-link active' : 'nav-link' }}" href="{{ route('admin.edit-image') }}"><i class="fas fa-image me-2"></i> Edit Image</a>
+                        <a class="{{ request()->routeIs('admin.edit-contact') ? 'nav-link active' : 'nav-link' }}" href="{{ route('admin.edit-contact') }}"><i class="fas fa-envelope me-2"></i> Edit Contact</a>
+                        <a class="{{ request()->routeIs('admin.edit-footer') ? 'nav-link active' : 'nav-link' }}" href="{{ route('admin.edit-footer') }}"><i class="fas fa-shoe-prints me-2"></i> Edit Footer</a>
+
+                        <a class="nav-link" href="{{ url('/') }}" target="_blank"><i class="fas fa-external-link-alt me-2"></i> View Site</a>
                     </nav>
                 </div>
             </div>
@@ -102,8 +103,8 @@
                 <div class="main-content p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2>Edit Home Page</h2>
-                        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        <a href="{{ route('admin.edit-home') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Home
                         </a>
                     </div>
 
@@ -237,6 +238,65 @@
                             @endif
                         </div>
                     </div>
+
+                    <!-- Skills Management -->
+                    <div class="card mt-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-code me-2"></i>Skills</h5>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+                                <i class="fas fa-plus me-2"></i>Add Skill
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            @if(isset($skills) && $skills->count() > 0)
+                                <div class="row">
+                                    @foreach($skills as $skill)
+                                        <div class="col-md-6 col-lg-4">
+                                            <div class="social-link-card {{ !$skill->is_active ? 'inactive' : '' }}">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div class="flex-grow-1">
+                                                        <div class="d-flex align-items-center mb-2">
+                                                            <i class="{{ $skill->icon_class }} icon-preview"></i>
+                                                            <h6 class="mb-0">{{ $skill->name }}</h6>
+                                                        </div>
+                                                        <small class="text-muted d-block mb-2">Proficiency: {{ $skill->proficiency_percent }}%</small>
+                                                        <div class="d-flex gap-2">
+                                                            <button class="btn btn-sm btn-outline-primary" onclick="editSkill('{{ $skill->id }}')">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-outline-{{ $skill->is_active ? 'warning' : 'success' }}" onclick="toggleSkill('{{ $skill->id }}')">
+                                                                <i class="fas fa-{{ $skill->is_active ? 'eye-slash' : 'eye' }}"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSkill('{{ $skill->id }}')">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <span class="badge {{ $skill->is_active ? 'bg-success' : 'bg-secondary' }} mb-2">
+                                                            {{ $skill->is_active ? 'Active' : 'Inactive' }}
+                                                        </span>
+                                                        <div>
+                                                            <small class="text-muted">Order: {{ $skill->order }}</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-4">
+                                    <i class="fas fa-code fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No skills found</h5>
+                                    <p class="text-muted">Add your first skill to get started</p>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+                                        <i class="fas fa-plus me-2"></i>Add First Skill
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -324,6 +384,83 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary">Update Link</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Skill Modal -->
+    <div class="modal fade" id="addSkillModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Skill</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('admin.skills.add') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="skill_name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="skill_name" name="name" required placeholder="e.g., HTML/CSS/JS">
+                        </div>
+                        <div class="mb-3">
+                            <label for="skill_icon_class" class="form-label">Icon Class (FontAwesome)</label>
+                            <input type="text" class="form-control" id="skill_icon_class" name="icon_class" placeholder="e.g., fa-brands fa-html5">
+                        </div>
+                        <div class="mb-3">
+                            <label for="skill_percent" class="form-label">Proficiency (%)</label>
+                            <input type="number" class="form-control" id="skill_percent" name="proficiency_percent" min="0" max="100" required placeholder="0-100">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Skill</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Skill Modal -->
+    <div class="modal fade" id="editSkillModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Skill</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editSkillForm" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="edit_skill_name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="edit_skill_name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_skill_icon_class" class="form-label">Icon Class</label>
+                            <input type="text" class="form-control" id="edit_skill_icon_class" name="icon_class">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_skill_percent" class="form-label">Proficiency (%)</label>
+                            <input type="number" class="form-control" id="edit_skill_percent" name="proficiency_percent" min="0" max="100" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_skill_order" class="form-label">Order</label>
+                            <input type="number" class="form-control" id="edit_skill_order" name="order" required min="1">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="edit_skill_is_active" name="is_active" value="1">
+                                <label class="form-check-label" for="edit_skill_is_active">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Skill</button>
                     </div>
                 </form>
             </div>
@@ -482,7 +619,89 @@
             // Initialize previews
             updateTitlePreview();
             updateSkillsPreview();
+
+            // Scroll to requested section if query present
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const section = params.get('section');
+                if (section === 'skills') {
+                    document.getElementById('skills_list')?.closest('.card')?.scrollIntoView({ behavior: 'smooth' });
+                } else if (section === 'social') {
+                    const socialHeader = Array.from(document.querySelectorAll('.card-header h5')).find(h => h.textContent.includes('Social Media Links'));
+                    socialHeader?.closest('.card')?.scrollIntoView({ behavior: 'smooth' });
+                }
+            } catch (e) {}
         });
+        
+        // Skills management
+        function editSkill(id) {
+            try {
+                const skillList = JSON.parse('@json($skills)');
+                const skill = skillList.find(s => s.id == id);
+                if (!skill) {
+                    alert('Skill not found');
+                    return;
+                }
+                document.getElementById('edit_skill_name').value = skill.name || '';
+                document.getElementById('edit_skill_icon_class').value = skill.icon_class || '';
+                document.getElementById('edit_skill_percent').value = skill.proficiency_percent || 0;
+                document.getElementById('edit_skill_order').value = skill.order || 1;
+                document.getElementById('edit_skill_is_active').checked = !!skill.is_active;
+                document.getElementById('editSkillForm').action = `{{ url('admin/skills') }}/${id}/update`;
+                new bootstrap.Modal(document.getElementById('editSkillModal')).show();
+            } catch (error) {
+                console.error('Error editing skill:', error);
+                alert('Error loading skill data. Please try again.');
+            }
+        }
+
+        function deleteSkill(id) {
+            if (confirm('Are you sure you want to delete this skill?')) {
+                try {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `{{ url('admin/skills') }}/${id}/delete`;
+                    const csrf = document.createElement('input');
+                    csrf.type = 'hidden';
+                    csrf.name = '_token';
+                    csrf.value = '{{ csrf_token() }}';
+                    const method = document.createElement('input');
+                    method.type = 'hidden';
+                    method.name = '_method';
+                    method.value = 'DELETE';
+                    form.appendChild(csrf);
+                    form.appendChild(method);
+                    document.body.appendChild(form);
+                    form.submit();
+                } catch (error) {
+                    console.error('Error deleting skill:', error);
+                    alert('Error deleting skill. Please try again.');
+                }
+            }
+        }
+
+        function toggleSkill(id) {
+            try {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `{{ url('admin/skills') }}/${id}/toggle`;
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = '_token';
+                csrf.value = '{{ csrf_token() }}';
+                const method = document.createElement('input');
+                method.type = 'hidden';
+                method.name = '_method';
+                method.value = 'PATCH';
+                form.appendChild(csrf);
+                form.appendChild(method);
+                document.body.appendChild(form);
+                form.submit();
+            } catch (error) {
+                console.error('Error toggling skill:', error);
+                alert('Error updating skill status. Please try again.');
+            }
+        }
     </script>
 </body>
 </html> 

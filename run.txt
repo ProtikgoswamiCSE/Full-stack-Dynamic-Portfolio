@@ -1,4 +1,4 @@
-composer create-project laravel/laravel example-app
+composer create-project laravel/laravel Full-stack-Dynamic-Portfolio
 
 
 composer update

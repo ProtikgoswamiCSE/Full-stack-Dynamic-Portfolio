@@ -9,67 +9,42 @@
     <div class="skills__container bd-grid">          
         <div>
             <h2 class="skills__subtitle">Profesional Skills</h2>
-            <p class="skills__text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Velit optio id vero amet, alias architecto consectetur error eum eaque sit.</p>
-            <div class="skills__data">
-                <div class="skills__names">
-                    <i class='fa-brands fa-html5 skills__icon'></i>
-                    <span class="skills__name">HTML,CSS,JS</span>
+            <p class="skills__text">Here are some of my core skills and proficiency levels.</p>
+            @php
+                try {
+                    $skillModels = \App\Models\Skill::getAllOrderedActive();
+                } catch (\Throwable $e) {
+                    $skillModels = collect();
+                }
+            @endphp
+            @if($skillModels->count() > 0)
+                @foreach($skillModels as $skill)
+                    <div class="skills__data">
+                        <div class="skills__names">
+                            @if(!empty($skill->icon_class))
+                                <i class="{{ $skill->icon_class }} skills__icon"></i>
+                            @endif
+                            <span class="skills__name">{{ $skill->name }}</span>
+                        </div>
+                        <div class="skills__bar" style="width: {{ (int) $skill->proficiency_percent }}%">
+                        </div>
+                        <div>
+                            <span class="skills__percentage">{{ (int) $skill->proficiency_percent }}%</span>
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="skills__data">
+                    <div class="skills__names">
+                        <i class='fa-solid fa-circle-info skills__icon'></i>
+                        <span class="skills__name">No skills added yet</span>
+                    </div>
+                    <div class="skills__bar" style="width: 0%"></div>
+                    <div>
+                        <span class="skills__percentage">0%</span>
+                    </div>
                 </div>
-                <div class="skills__bar skills__html">
-
-                </div>
-                <div>
-                    <span class="skills__percentage">85%</span>
-                </div>
-            </div>
-            <div class="skills__data">
-                <div class="skills__names">
-                    <i class='fa-brands fa-c skills__icon'></i>
-                    <span class="skills__name">C,C++</span>
-                </div>
-                <div class="skills__bar skills__c-plus-plus">
-                    
-                </div>
-                <div>
-                    <span class="skills__percentage">95%</span>
-                </div>
-            </div>
-            <div class="skills__data">
-                <div class="skills__names">
-                    <i class="fa-brands fa-python skills__icon"></i>
-                    <span class="skills__name">Python</span>
-                </div>
-                <div class="skills__bar skills__python">
-                    
-                </div>
-                <div>
-                    <span class="skills__percentage">65%</span>
-                </div>
-            </div>
-            <div class="skills__data">
-                <div class="skills__names">
-                    <i class="fa-brands fa-js skills__icon"></i>
-                    <span class="skills__name">JS</span>
-                </div>
-                <div class="skills__bar skills__js">
-                    
-                </div>
-                <div>
-                    <span class="skills__percentage">40%</span>
-                </div>
-            </div>
-            <div class="skills__data">
-                <div class="skills__names">
-                    <i class="fa-brands fa-uikit skills__icon"></i>
-                    <span class="skills__name">UX/UI</span>
-                </div>
-                <div class="skills__bar skills__ux">
-                    
-                </div>
-                <div>
-                    <span class="skills__percentage">98%</span>
-                </div>
-            </div>
+            @endif
         </div>
         
         <div>              

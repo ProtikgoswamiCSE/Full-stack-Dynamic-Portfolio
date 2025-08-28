@@ -5,19 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\HomeContent;
 use App\Models\SocialMediaLink;
 use Illuminate\Http\Request;
+use App\Models\Skill;
+use App\Models\Footer;
+use App\Models\FooterSocialLink;
 
 class AdminController extends Controller
 {
-    /**
-     * Show admin dashboard
-     */
-    public function dashboard()
-    {
-        $homeContents = HomeContent::all();
-        $socialLinks = SocialMediaLink::getAllOrdered();
-        return view('admin.dashboard', compact('homeContents', 'socialLinks'));
-    }
-
     /**
      * Show home page editor
      */
@@ -25,7 +18,191 @@ class AdminController extends Controller
     {
         $homeContents = HomeContent::all()->keyBy('section');
         $socialLinks = SocialMediaLink::getAllOrdered();
-        return view('admin.edit-home', compact('homeContents', 'socialLinks'));
+        $skills = Skill::orderBy('order')->get();
+        return view('admin.edit-home', compact('homeContents', 'socialLinks', 'skills'));
+    }
+
+    // Simple editors for other pages (placeholders for now)
+    public function editAbout() { return view('admin.edit-about'); }
+    public function editAchivement() { return view('admin.edit-achivement'); }
+    public function editAcademic() { return view('admin.edit-academic'); }
+    public function editWork() { return view('admin.edit-work'); }
+    public function editImage() { return view('admin.edit-image'); }
+    public function editContact() { return view('admin.edit-contact'); }
+    public function editFooter() {
+        $footer = Footer::getActive();
+        $socialLinks = FooterSocialLink::getAllOrdered();
+        return view('admin.edit-footer', compact('footer', 'socialLinks'));
+    }
+
+    // Footer Social Links Management
+    public function addFooterSocialLink(Request $request)
+    {
+        $request->validate([
+            'platform' => 'required|string|max:50',
+            'url' => 'required|url|max:255',
+            'order' => 'required|integer|min:1',
+        ]);
+
+        $socialLink = new FooterSocialLink();
+        $socialLink->platform = $request->platform;
+        $socialLink->url = $request->url;
+        $socialLink->order = $request->order;
+        $socialLink->save();
+
+        return response()->json(['success' => true, 'message' => 'Social link added successfully']);
+    }
+
+    public function updateFooterSocialLink(Request $request, $id)
+    {
+        $request->validate([
+            'platform' => 'required|string|max:50',
+            'url' => 'required|url|max:255',
+            'order' => 'required|integer|min:1',
+        ]);
+
+        $socialLink = FooterSocialLink::findOrFail($id);
+        $socialLink->platform = $request->platform;
+        $socialLink->url = $request->url;
+        $socialLink->order = $request->order;
+        $socialLink->save();
+
+        return response()->json(['success' => true, 'message' => 'Social link updated successfully']);
+    }
+
+    public function deleteFooterSocialLink($id)
+    {
+        $socialLink = FooterSocialLink::findOrFail($id);
+        $socialLink->delete();
+
+        return response()->json(['success' => true, 'message' => 'Social link deleted successfully']);
+    }
+
+    public function toggleFooterSocialLink($id)
+    {
+        $socialLink = FooterSocialLink::findOrFail($id);
+        $socialLink->is_active = !$socialLink->is_active;
+        $socialLink->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Social link ' . ($socialLink->is_active ? 'activated' : 'deactivated') . ' successfully',
+            'is_active' => $socialLink->is_active
+        ]);
+    }
+
+    public function updateFooter(Request $request)
+    {
+        try {
+            \Log::info('Footer update request received', $request->all());
+            
+            $request->validate([
+                'title' => 'nullable|string|max:255',
+                'description' => 'nullable|string',
+                'copyright_text' => 'nullable|string|max:255',
+                'facebook_url' => 'nullable|url',
+                'twitter_url' => 'nullable|url',
+                'linkedin_url' => 'nullable|url',
+                'github_url' => 'nullable|url',
+                'instagram_url' => 'nullable|url',
+            ]);
+
+            $footer = Footer::first();
+            if (!$footer) {
+                $footer = new Footer();
+                $footer->is_active = true; // Set default active status
+                \Log::info('Creating new footer record');
+            } else {
+                \Log::info('Updating existing footer record', ['id' => $footer->id]);
+            }
+
+            $footer->fill($request->all());
+            $footer->save();
+
+            \Log::info('Footer updated successfully', ['id' => $footer->id, 'data' => $footer->toArray()]);
+
+            return response()->json(['success' => true, 'message' => 'Footer updated successfully']);
+        } catch (\Exception $e) {
+            \Log::error('Error updating footer: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['success' => false, 'message' => 'Error updating footer: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Skills CRUD
+     */
+    public function addSkill(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:100',
+                'icon_class' => 'nullable|string|max:100',
+                'proficiency_percent' => 'required|integer|min:0|max:100',
+            ]);
+
+            $skill = new Skill();
+            $skill->name = $request->name;
+            $skill->icon_class = $request->icon_class;
+            $skill->proficiency_percent = $request->proficiency_percent;
+            $skill->order = Skill::getNextOrder();
+            $skill->is_active = true;
+            $skill->save();
+
+            return redirect()->route('admin.edit-home')->with('success', 'Skill added successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.edit-home')->with('error', 'Error adding skill: ' . $e->getMessage());
+        }
+    }
+
+    public function updateSkill(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:100',
+                'icon_class' => 'nullable|string|max:100',
+                'proficiency_percent' => 'required|integer|min:0|max:100',
+                'order' => 'required|integer|min:1',
+                'is_active' => 'boolean',
+            ]);
+
+            $skill = Skill::findOrFail($id);
+            $skill->update([
+                'name' => $request->name,
+                'icon_class' => $request->icon_class,
+                'proficiency_percent' => $request->proficiency_percent,
+                'order' => $request->order,
+                'is_active' => $request->has('is_active'),
+            ]);
+
+            return redirect()->route('admin.edit-home')->with('success', 'Skill updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.edit-home')->with('error', 'Error updating skill: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteSkill($id)
+    {
+        try {
+            $skill = Skill::findOrFail($id);
+            $skill->delete();
+            return redirect()->route('admin.edit-home')->with('success', 'Skill deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.edit-home')->with('error', 'Error deleting skill: ' . $e->getMessage());
+        }
+    }
+
+    public function toggleSkill($id)
+    {
+        try {
+            $skill = Skill::findOrFail($id);
+            $skill->is_active = !$skill->is_active;
+            $skill->save();
+
+            $status = $skill->is_active ? 'activated' : 'deactivated';
+            return redirect()->route('admin.edit-home')->with('success', "Skill {$status} successfully!");
+        } catch (\Exception $e) {
+            return redirect()->route('admin.edit-home')->with('error', 'Error toggling skill: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -136,51 +313,5 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Initialize default content
-     */
-    public function initializeContent()
-    {
-        $defaults = [
-            'title' => 'Hi there,<br>I\'m <span class="home__title-color">Protik Goswami</span><br>Web Designer',
-            'subtitle' => 'Network Security Specialist',
-            'skills_list' => "* Network Security Specialist\n* Programming\n* UI/UX Design\n* Artificial Intelligence",
-            'contact_button_text' => 'Contact',
-        ];
 
-        foreach ($defaults as $section => $content) {
-            HomeContent::updateContent($section, $content);
-        }
-
-        // Initialize default social media links
-        $defaultSocialLinks = [
-            [
-                'platform' => 'github',
-                'name' => 'GitHub',
-                'icon_class' => 'fa-brands fa-github',
-                'url' => 'https://github.com/ProtikgoswamiCSE',
-                'order' => 1,
-            ],
-            [
-                'platform' => 'facebook',
-                'name' => 'Facebook',
-                'icon_class' => 'fa-brands fa-facebook',
-                'url' => 'https://www.facebook.com/protik.goswami.140',
-                'order' => 2,
-            ],
-            [
-                'platform' => 'instagram',
-                'name' => 'Instagram',
-                'icon_class' => 'fa-brands fa-instagram',
-                'url' => 'https://www.instagram.com/goswamiprotik/',
-                'order' => 3,
-            ],
-        ];
-
-        foreach ($defaultSocialLinks as $link) {
-            SocialMediaLink::create($link);
-        }
-
-        return redirect()->route('admin.dashboard')->with('success', 'Default content and social media links initialized!');
-    }
 }
