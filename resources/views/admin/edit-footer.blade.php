@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Edit Footer - Admin Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -435,6 +438,12 @@
             e.preventDefault();
             
             const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            // Disable button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
             
             fetch('{{ route("admin.footer.update") }}', {
                 method: 'POST',
@@ -446,15 +455,25 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Footer updated successfully!');
-                    location.reload();
+                    showAlert('Footer updated successfully!', 'success');
+                    // Update preview sections immediately
+                    updatePreview();
+                    // Refresh page after 2 seconds to show updated data
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 2000);
                 } else {
-                    alert('Error updating footer: ' + data.message);
+                    showAlert('Error updating footer: ' + (data.message || 'Unknown error'), 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error updating footer. Please try again.');
+                showAlert('Error updating footer. Please try again.', 'danger');
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             });
         });
 

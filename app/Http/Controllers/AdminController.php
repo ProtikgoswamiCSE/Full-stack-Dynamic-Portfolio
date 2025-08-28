@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Skill;
 use App\Models\Footer;
 use App\Models\FooterSocialLink;
+use App\Models\Achievement;
 
 class AdminController extends Controller
 {
@@ -24,7 +25,10 @@ class AdminController extends Controller
 
     // Simple editors for other pages (placeholders for now)
     public function editAbout() { return view('admin.edit-about'); }
-    public function editAchivement() { return view('admin.edit-achivement'); }
+    public function editAchivement() { 
+        $achievements = Achievement::getAllOrdered();
+        return view('admin.edit-achivement', compact('achievements')); 
+    }
     public function editAcademic() { return view('admin.edit-academic'); }
     public function editWork() { return view('admin.edit-work'); }
     public function editImage() { return view('admin.edit-image'); }
@@ -313,5 +317,107 @@ class AdminController extends Controller
         }
     }
 
+    // Achievement Management
+    public function addAchievement(Request $request)
+    {
+        try {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'certificate_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'certificate_url' => 'nullable|url|max:255',
+                'order' => 'required|integer|min:1',
+            ]);
 
+            $achievement = new Achievement();
+            $achievement->title = $request->title;
+            $achievement->description = $request->description;
+            $achievement->certificate_url = $request->certificate_url;
+            $achievement->order = $request->order;
+            $achievement->is_active = true;
+
+            // Handle image upload
+            if ($request->hasFile('certificate_image')) {
+                $imagePath = $request->file('certificate_image')->store('achievements', 'public');
+                $achievement->certificate_image = $imagePath;
+            }
+
+            $achievement->save();
+
+            return response()->json(['success' => true, 'message' => 'Achievement added successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error adding achievement: ' . $e->getMessage()]);
+        }
+    }
+
+    public function updateAchievement(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'certificate_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'certificate_url' => 'nullable|url|max:255',
+                'order' => 'required|integer|min:1',
+            ]);
+
+            $achievement = Achievement::findOrFail($id);
+            $achievement->title = $request->title;
+            $achievement->description = $request->description;
+            $achievement->certificate_url = $request->certificate_url;
+            $achievement->order = $request->order;
+
+            // Handle image upload
+            if ($request->hasFile('certificate_image')) {
+                // Delete old image if exists
+                if ($achievement->certificate_image) {
+                    \Storage::disk('public')->delete($achievement->certificate_image);
+                }
+                $imagePath = $request->file('certificate_image')->store('achievements', 'public');
+                $achievement->certificate_image = $imagePath;
+            }
+
+            $achievement->save();
+
+            return response()->json(['success' => true, 'message' => 'Achievement updated successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error updating achievement: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deleteAchievement($id)
+    {
+        try {
+            $achievement = Achievement::findOrFail($id);
+            
+            // Delete image if exists
+            if ($achievement->certificate_image) {
+                \Storage::disk('public')->delete($achievement->certificate_image);
+            }
+            
+            $achievement->delete();
+
+            return response()->json(['success' => true, 'message' => 'Achievement deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error deleting achievement: ' . $e->getMessage()]);
+        }
+    }
+
+    public function toggleAchievement($id)
+    {
+        try {
+            $achievement = Achievement::findOrFail($id);
+            $achievement->is_active = !$achievement->is_active;
+            $achievement->save();
+
+            $status = $achievement->is_active ? 'activated' : 'deactivated';
+            return response()->json([
+                'success' => true,
+                'message' => 'Achievement ' . $status . ' successfully',
+                'is_active' => $achievement->is_active
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error toggling achievement: ' . $e->getMessage()]);
+        }
+    }
 }
