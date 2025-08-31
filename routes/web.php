@@ -45,6 +45,13 @@ Route::prefix('admin')->group(function () {
     Route::post('/achievement/{id}/delete', [AdminController::class, 'deleteAchievement'])->name('admin.achievement.delete');
     Route::post('/achievement/{id}/toggle', [AdminController::class, 'toggleAchievement'])->name('admin.achievement.toggle');
     
+    // Academic Management Routes
+    Route::get('/academic/{id}', [AdminController::class, 'getAcademic'])->name('admin.academic.get');
+    Route::post('/academic/add', [AdminController::class, 'addAcademic'])->name('admin.academic.add');
+    Route::post('/academic/{id}/update', [AdminController::class, 'updateAcademic'])->name('admin.academic.update');
+    Route::post('/academic/{id}/delete', [AdminController::class, 'deleteAcademic'])->name('admin.academic.delete');
+    Route::post('/academic/{id}/toggle', [AdminController::class, 'toggleAcademic'])->name('admin.academic.toggle');
+    
     // Other admin routes...
     Route::get('/edit-about', [AdminController::class, 'editAbout'])->name('admin.edit-about');
     

@@ -10,6 +10,7 @@ use App\Models\Footer;
 use App\Models\FooterSocialLink;
 use App\Models\Achievement;
 use App\Models\AboutContent;
+use App\Models\Academic;
 
 class AdminController extends Controller
 {
@@ -41,7 +42,10 @@ class AdminController extends Controller
         $achievements = Achievement::getAllOrdered();
         return view('admin.edit-achivement', compact('achievements')); 
     }
-    public function editAcademic() { return view('admin.edit-academic'); }
+    public function editAcademic() { 
+        $academics = Academic::getAllOrdered();
+        return view('admin.edit-academic', compact('academics')); 
+    }
     public function editWork() { return view('admin.edit-work'); }
     public function editImage() { return view('admin.edit-image'); }
     public function editContact() { return view('admin.edit-contact'); }
@@ -440,6 +444,136 @@ class AdminController extends Controller
             return response()->json($achievement);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error fetching achievement: ' . $e->getMessage()]);
+        }
+    }
+
+    // Academic Management
+    public function addAcademic(Request $request)
+    {
+        try {
+            $request->validate([
+                'institution_name' => 'required|string|max:255',
+                'degree_title' => 'required|string|max:255',
+                'field_of_study' => 'required|string|max:255',
+                'start_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 10),
+                'end_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 10),
+                'description' => 'nullable|string',
+                'certificate_image' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf|max:5120',
+                'certificate_url' => 'nullable|url|max:255',
+                'order' => 'required|integer|min:1',
+            ]);
+
+            $academic = new Academic();
+            $academic->institution_name = $request->institution_name;
+            $academic->degree_title = $request->degree_title;
+            $academic->field_of_study = $request->field_of_study;
+            $academic->start_year = $request->start_year;
+            $academic->end_year = $request->end_year;
+            $academic->description = $request->description;
+            $academic->certificate_url = $request->certificate_url;
+            $academic->order = $request->order;
+            $academic->is_active = true;
+
+            // Handle image upload
+            if ($request->hasFile('certificate_image')) {
+                $imagePath = $request->file('certificate_image')->store('academics', 'public');
+                $academic->certificate_image = $imagePath;
+            }
+
+            $academic->save();
+
+            return response()->json(['success' => true, 'message' => 'Academic record added successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error adding academic record: ' . $e->getMessage()]);
+        }
+    }
+
+    public function updateAcademic(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'institution_name' => 'required|string|max:255',
+                'degree_title' => 'required|string|max:255',
+                'field_of_study' => 'required|string|max:255',
+                'start_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 10),
+                'end_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 255),
+                'description' => 'nullable|string',
+                'certificate_image' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf|max:5120',
+                'certificate_url' => 'nullable|url|max:255',
+                'order' => 'required|integer|min:1',
+            ]);
+
+            $academic = Academic::findOrFail($id);
+            $academic->institution_name = $request->institution_name;
+            $academic->degree_title = $request->degree_title;
+            $academic->field_of_study = $request->field_of_study;
+            $academic->start_year = $request->start_year;
+            $academic->end_year = $request->end_year;
+            $academic->description = $request->description;
+            $academic->certificate_url = $request->certificate_url;
+            $academic->order = $request->order;
+
+            // Handle image upload
+            if ($request->hasFile('certificate_image')) {
+                // Delete old image if exists
+                if ($academic->certificate_image) {
+                    \Storage::disk('public')->delete($academic->certificate_image);
+                }
+                $imagePath = $request->file('certificate_image')->store('academics', 'public');
+                $academic->certificate_image = $imagePath;
+            }
+
+            $academic->save();
+
+            return response()->json(['success' => true, 'message' => 'Academic record updated successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error updating academic record: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deleteAcademic($id)
+    {
+        try {
+            $academic = Academic::findOrFail($id);
+            
+            // Delete image if exists
+            if ($academic->certificate_image) {
+                \Storage::disk('public')->delete($academic->certificate_image);
+            }
+            
+            $academic->delete();
+
+            return response()->json(['success' => true, 'message' => 'Academic record deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error deleting academic record: ' . $e->getMessage()]);
+        }
+    }
+
+    public function toggleAcademic($id)
+    {
+        try {
+            $academic = Academic::findOrFail($id);
+            $academic->is_active = !$academic->is_active;
+            $academic->save();
+
+            $status = $academic->is_active ? 'activated' : 'deactivated';
+            return response()->json([
+                'success' => true,
+                'message' => 'Academic record ' . $status . ' successfully',
+                'is_active' => $academic->is_active
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error toggling academic record: ' . $e->getMessage()]);
+        }
+    }
+
+    public function getAcademic($id)
+    {
+        try {
+            $academic = Academic::findOrFail($id);
+            return response()->json($academic);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error fetching academic record: ' . $e->getMessage()]);
         }
     }
 

@@ -9,6 +9,7 @@ use App\Models\Skill;
 use App\Models\Footer;
 use App\Models\FooterSocialLink;
 use App\Models\Achievement;
+use App\Models\Academic;
 
 class AdminContentSeeder extends Seeder
 {
@@ -34,6 +35,9 @@ class AdminContentSeeder extends Seeder
         
         // Initialize Achievements
         $this->initializeAchievements();
+        
+        // Initialize Academics
+        $this->initializeAcademics();
     }
 
     private function initializeHomeContent()
@@ -194,6 +198,52 @@ class AdminContentSeeder extends Seeder
             Achievement::updateOrCreate(
                 ['title' => $achievement['title']],
                 $achievement
+            );
+        }
+    }
+
+    private function initializeAcademics()
+    {
+        $academics = [
+            [
+                'institution_name' => 'S.R Patory Quality Educare Institute',
+                'degree_title' => 'Secondary School Certificate',
+                'field_of_study' => 'Science',
+                'start_year' => 2018,
+                'end_year' => 2019,
+                'description' => 'Group: Science',
+                'certificate_url' => 'https://example.com/ssc',
+                'order' => 1,
+                'is_active' => true
+            ],
+            [
+                'institution_name' => 'Sristy College of Tangail',
+                'degree_title' => 'Higher Secondary School Certificate',
+                'field_of_study' => 'Science',
+                'start_year' => 2019,
+                'end_year' => 2020,
+                'description' => 'Group: Science',
+                'certificate_url' => 'https://example.com/hsc',
+                'order' => 2,
+                'is_active' => true
+            ],
+            [
+                'institution_name' => 'Daffodil International University',
+                'degree_title' => 'Bachelor of Science',
+                'field_of_study' => 'Computer Science and Engineering',
+                'start_year' => 2021,
+                'end_year' => 2024,
+                'description' => 'Computer Science and Engineering',
+                'certificate_url' => 'https://example.com/bsc',
+                'order' => 3,
+                'is_active' => true
+            ]
+        ];
+
+        foreach ($academics as $academic) {
+            Academic::updateOrCreate(
+                ['institution_name' => $academic['institution_name']],
+                $academic
             );
         }
     }
