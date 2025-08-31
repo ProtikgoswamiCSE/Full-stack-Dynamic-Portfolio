@@ -34,7 +34,7 @@ Route::get('/contact', function () {
 
 // Admin Routes
 Route::prefix('admin')->group(function () {
-    Route::get('/', [AdminController::class, 'editHome'])->name('admin.home');
+    Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/edit-home', [AdminController::class, 'editHome'])->name('admin.edit-home');
     Route::post('/update-home', [AdminController::class, 'updateHome'])->name('admin.update-home');
     
