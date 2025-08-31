@@ -336,7 +336,7 @@ class AdminController extends Controller
             $request->validate([
                 'title' => 'required|string|max:255',
                 'description' => 'nullable|string',
-                'certificate_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'certificate_image' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf|max:5120',
                 'certificate_url' => 'nullable|url|max:255',
                 'order' => 'required|integer|min:1',
             ]);
@@ -368,7 +368,7 @@ class AdminController extends Controller
             $request->validate([
                 'title' => 'required|string|max:255',
                 'description' => 'nullable|string',
-                'certificate_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'certificate_image' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf|max:5120',
                 'certificate_url' => 'nullable|url|max:255',
                 'order' => 'required|integer|min:1',
             ]);
@@ -430,6 +430,16 @@ class AdminController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error toggling achievement: ' . $e->getMessage()]);
+        }
+    }
+
+    public function getAchievement($id)
+    {
+        try {
+            $achievement = Achievement::findOrFail($id);
+            return response()->json($achievement);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error fetching achievement: ' . $e->getMessage()]);
         }
     }
 

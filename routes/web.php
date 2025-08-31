@@ -39,6 +39,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/update-home', [AdminController::class, 'updateHome'])->name('admin.update-home');
     
     // Achievement Management Routes
+    Route::get('/achievement/{id}', [AdminController::class, 'getAchievement'])->name('admin.achievement.get');
     Route::post('/achievement/add', [AdminController::class, 'addAchievement'])->name('admin.achievement.add');
     Route::post('/achievement/{id}/update', [AdminController::class, 'updateAchievement'])->name('admin.achievement.update');
     Route::post('/achievement/{id}/delete', [AdminController::class, 'deleteAchievement'])->name('admin.achievement.delete');
