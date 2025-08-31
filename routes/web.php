@@ -46,6 +46,13 @@ Route::prefix('admin')->group(function () {
     
     // Other admin routes...
     Route::get('/edit-about', [AdminController::class, 'editAbout'])->name('admin.edit-about');
+    
+    // About Content Management
+    Route::get('/about/{id}', [AdminController::class, 'getAboutContent'])->name('admin.about.get');
+    Route::post('/about/add', [AdminController::class, 'addAboutContent'])->name('admin.about.add');
+    Route::post('/about/{id}/update', [AdminController::class, 'updateAboutContent'])->name('admin.about.update');
+    Route::post('/about/{id}/delete', [AdminController::class, 'deleteAboutContent'])->name('admin.about.delete');
+    Route::post('/about/{id}/toggle', [AdminController::class, 'toggleAboutContent'])->name('admin.about.toggle');
     Route::get('/edit-achivement', [AdminController::class, 'editAchivement'])->name('admin.edit-achivement');
     Route::get('/edit-academic', [AdminController::class, 'editAcademic'])->name('admin.edit-academic');
     Route::get('/edit-work', [AdminController::class, 'editWork'])->name('admin.edit-work');

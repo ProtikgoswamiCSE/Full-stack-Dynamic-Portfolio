@@ -9,6 +9,7 @@ use App\Models\Skill;
 use App\Models\Footer;
 use App\Models\FooterSocialLink;
 use App\Models\Achievement;
+use App\Models\AboutContent;
 
 class AdminController extends Controller
 {
@@ -32,7 +33,10 @@ class AdminController extends Controller
     }
 
     // Simple editors for other pages (placeholders for now)
-    public function editAbout() { return view('admin.edit-about'); }
+    public function editAbout() { 
+        $aboutContents = AboutContent::getAllOrdered();
+        return view('admin.edit-about', compact('aboutContents')); 
+    }
     public function editAchivement() { 
         $achievements = Achievement::getAllOrdered();
         return view('admin.edit-achivement', compact('achievements')); 
@@ -426,6 +430,124 @@ class AdminController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error toggling achievement: ' . $e->getMessage()]);
+        }
+    }
+
+    // About Content Management
+    public function getAboutContent($id)
+    {
+        try {
+            $aboutContent = AboutContent::findOrFail($id);
+            return response()->json($aboutContent);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Content not found'], 404);
+        }
+    }
+
+    public function addAboutContent(Request $request)
+    {
+        try {
+            $request->validate([
+                'section' => 'required|string|max:50',
+                'custom_section' => 'nullable|string|max:100',
+                'title' => 'nullable|string|max:255',
+                'content' => 'required|string',
+                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:5120',
+                'order' => 'required|integer|min:1',
+            ]);
+
+            $aboutContent = new AboutContent();
+            $aboutContent->section = $request->section;
+            $aboutContent->custom_section = $request->custom_section;
+            $aboutContent->title = $request->title;
+            $aboutContent->content = $request->content;
+            $aboutContent->order = $request->order;
+            $aboutContent->is_active = true;
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('about', 'public');
+                $aboutContent->image = $imagePath;
+            }
+
+            $aboutContent->save();
+
+            return response()->json(['success' => true, 'message' => 'About content added successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error adding about content: ' . $e->getMessage()]);
+        }
+    }
+
+    public function updateAboutContent(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'section' => 'required|string|max:50',
+                'custom_section' => 'nullable|string|max:100',
+                'title' => 'nullable|string|max:255',
+                'content' => 'required|string',
+                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:5120',
+                'order' => 'required|integer|min:1',
+            ]);
+
+            $aboutContent = AboutContent::findOrFail($id);
+            $aboutContent->section = $request->section;
+            $aboutContent->custom_section = $request->custom_section;
+            $aboutContent->title = $request->title;
+            $aboutContent->content = $request->content;
+            $aboutContent->order = $request->order;
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                // Delete old image if exists
+                if ($aboutContent->image) {
+                    \Storage::disk('public')->delete($aboutContent->image);
+                }
+                $imagePath = $request->file('image')->store('about', 'public');
+                $aboutContent->image = $imagePath;
+            }
+
+            $aboutContent->save();
+
+            return response()->json(['success' => true, 'message' => 'About content updated successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error updating about content: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deleteAboutContent($id)
+    {
+        try {
+            $aboutContent = AboutContent::findOrFail($id);
+            
+            // Delete image if exists
+            if ($aboutContent->image) {
+                \Storage::disk('public')->delete($aboutContent->image);
+            }
+            
+            $aboutContent->delete();
+
+            return response()->json(['success' => true, 'message' => 'About content deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error deleting about content: ' . $e->getMessage()]);
+        }
+    }
+
+    public function toggleAboutContent($id)
+    {
+        try {
+            $aboutContent = AboutContent::findOrFail($id);
+            $aboutContent->is_active = !$aboutContent->is_active;
+            $aboutContent->save();
+
+            $status = $aboutContent->is_active ? 'activated' : 'deactivated';
+            return response()->json([
+                'success' => true,
+                'message' => 'About content ' . $status . ' successfully',
+                'is_active' => $aboutContent->is_active
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error toggling about content: ' . $e->getMessage()]);
         }
     }
 }
