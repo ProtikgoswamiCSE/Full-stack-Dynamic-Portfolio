@@ -6,6 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Edit Footer - Admin Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -230,7 +231,7 @@
                         @csrf
                         <div class="mb-3">
                             <label for="platform" class="form-label">Platform</label>
-                            <select class="form-select" id="platform" name="platform" required>
+                            <select class="form-select" id="platform" name="platform" required onchange="handlePlatformSelectChange(this, 'customPlatformWrapper')">
                                 <option value="">Select Platform</option>
                                 <option value="facebook">Facebook</option>
                                 <option value="twitter">Twitter</option>
@@ -240,7 +241,12 @@
                                 <option value="youtube">YouTube</option>
                                 <option value="telegram">Telegram</option>
                                 <option value="whatsapp">WhatsApp</option>
+                                <option value="__custom">Custom</option>
                             </select>
+                            <div id="customPlatformWrapper" class="mt-2" style="display:none;">
+                                <input type="text" class="form-control" id="customPlatform" placeholder="Type custom platform name (e.g., Behance)">
+                                <div class="form-text">A generic link icon will be used for custom platforms.</div>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="url" class="form-label">URL</label>
@@ -274,7 +280,7 @@
                         <input type="hidden" id="editSocialId" name="id">
                         <div class="mb-3">
                             <label for="editPlatform" class="form-label">Platform</label>
-                            <select class="form-select" id="editPlatform" name="platform" required>
+                            <select class="form-select" id="editPlatform" name="platform" required onchange="handlePlatformSelectChange(this, 'editCustomPlatformWrapper')">
                                 <option value="facebook">Facebook</option>
                                 <option value="twitter">Twitter</option>
                                 <option value="linkedin">LinkedIn</option>
@@ -283,7 +289,12 @@
                                 <option value="youtube">YouTube</option>
                                 <option value="telegram">Telegram</option>
                                 <option value="whatsapp">WhatsApp</option>
+                                <option value="__custom">Custom</option>
                             </select>
+                            <div id="editCustomPlatformWrapper" class="mt-2" style="display:none;">
+                                <input type="text" class="form-control" id="editCustomPlatform" placeholder="Type custom platform name">
+                                <div class="form-text">A generic link icon will be used for custom platforms.</div>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="editUrl" class="form-label">URL</label>
@@ -305,6 +316,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function getCsrfToken() {
+            const tag = document.querySelector('meta[name="csrf-token"]');
+            return tag ? tag.getAttribute('content') : '';
+        }
+
         // Live preview updates for text fields
         document.getElementById('title').addEventListener('input', function() {
             document.getElementById('previewTitle').textContent = this.value || 'Footer Title';
@@ -318,22 +334,48 @@
             document.getElementById('previewCopyright').textContent = this.value || '© 2024 Your Name. All rights reserved.';
         });
 
+        // Helper: show custom platform field
+        function handlePlatformSelectChange(selectEl, wrapperId) {
+            const wrapper = document.getElementById(wrapperId);
+            if (!wrapper) return;
+            if (selectEl.value === '__custom') {
+                wrapper.style.display = 'block';
+            } else {
+                wrapper.style.display = 'none';
+            }
+        }
+
         // Social Media Links Management
         function addSocialLink() {
             const form = document.getElementById('addSocialForm');
             const formData = new FormData(form);
+            formData.append('_token', getCsrfToken());
+            // If custom selected, override platform with typed value
+            const platformSelect = document.getElementById('platform');
+            if (platformSelect && platformSelect.value === '__custom') {
+                const customValue = (document.getElementById('customPlatform')?.value || '').trim();
+                if (!customValue) {
+                    alert('Please enter a custom platform name.');
+                    return;
+                }
+                formData.set('platform', customValue);
+            }
             
             // Show loading state
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
-            submitBtn.disabled = true;
+            const submitBtn = document.querySelector('#addSocialModal .btn-primary');
+            const originalText = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
+                submitBtn.disabled = true;
+            }
             
             fetch('{{ route("admin.footer.social.add") }}', {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'Accept': 'application/json'
                 }
             })
             .then(response => response.json())
@@ -351,14 +393,26 @@
             })
             .finally(() => {
                 // Reset button state
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+                if (submitBtn) {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
             });
         }
 
         function editSocialLink(id, platform, url, order) {
             document.getElementById('editSocialId').value = id;
-            document.getElementById('editPlatform').value = platform;
+            const editSelect = document.getElementById('editPlatform');
+            const known = ['facebook','twitter','linkedin','github','instagram','youtube','telegram','whatsapp'];
+            if (known.includes(platform)) {
+                editSelect.value = platform;
+                handlePlatformSelectChange(editSelect, 'editCustomPlatformWrapper');
+                document.getElementById('editCustomPlatform').value = '';
+            } else {
+                editSelect.value = '__custom';
+                handlePlatformSelectChange(editSelect, 'editCustomPlatformWrapper');
+                document.getElementById('editCustomPlatform').value = platform;
+            }
             document.getElementById('editUrl').value = url;
             document.getElementById('editOrder').value = order;
             
@@ -370,6 +424,16 @@
             const id = document.getElementById('editSocialId').value;
             const form = document.getElementById('editSocialForm');
             const formData = new FormData(form);
+            formData.append('_token', getCsrfToken());
+            const editSelect = document.getElementById('editPlatform');
+            if (editSelect && editSelect.value === '__custom') {
+                const customValue = (document.getElementById('editCustomPlatform')?.value || '').trim();
+                if (!customValue) {
+                    alert('Please enter a custom platform name.');
+                    return;
+                }
+                formData.set('platform', customValue);
+            }
             
             // Show loading state
             const submitBtn = document.querySelector('#editSocialModal .btn-primary');
@@ -381,7 +445,9 @@
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'Accept': 'application/json'
                 }
             })
             .then(response => response.json())
@@ -409,8 +475,12 @@
                 fetch(`{{ url('/admin/footer/social') }}/${id}/delete`, {
                     method: 'POST',
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': getCsrfToken(),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ _token: getCsrfToken() })
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -432,8 +502,12 @@
             fetch(`{{ url('/admin/footer/social') }}/${id}/toggle`, {
                 method: 'POST',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ _token: getCsrfToken() })
             })
             .then(response => response.json())
             .then(data => {
@@ -466,7 +540,9 @@
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'Accept': 'application/json'
                 }
             })
             .then(response => response.json())

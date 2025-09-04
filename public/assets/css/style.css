@@ -387,6 +387,16 @@ img {
   font-size: var(--smaller-font-size);
 }
 
+/* Left align footer description and copyright */
+.footer__description {
+  text-align: left;
+  margin-left: 100px;
+}
+.footer__copy {
+  text-align: left;
+  margin-left: 100px;
+}
+
 /* ===== MEDIA QUERIES=====*/
 @media screen and (max-width: 320px) {
   .home {

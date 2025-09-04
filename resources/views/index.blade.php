@@ -75,16 +75,26 @@
         <!--===== CONTACT =====-->
             @yield('contact-section')
         <!--===== FOOTER =====-->
+        @php
+            $footer = \App\Models\Footer::getActive();
+            $footerLinks = \App\Models\FooterSocialLink::getActiveOrdered();
+        @endphp
         <footer class="footer">
-            <p class="footer__title">Contact with Me</p>
+            <p class="footer__title">{{ $footer->title ?? 'Contact with Me' }}</p>
+            @if($footer && $footer->description)
+                <div class="footer__description">{{ $footer->description }}</div>
+            @endif
             <div class="footer__social">
-                <a href="https://github.com/ProtikgoswamiCSE" class="footer__icon"><i class='fa-brands fa-github skills__icon_futter' ></i></a>
-                <a href="https://www.facebook.com/protik.goswami.140" class="footer__icon"><i class='fa-brands fa-facebook skills__icon_futter' ></i></a>
-                <a href="#" class="footer__icon"><i class='fa-brands fa-linkedin skills__icon_futter' ></i></a>
-                <a href="https://www.instagram.com/goswamiprotik/" class="footer__icon"><i class='fa-brands fa-instagram skills__icon_futter' ></i></a>
-                <a href="https://linktr.ee/protikgoswami" class="footer__icon"><i class='fa-solid fa-link' ></i></a>
+                @forelse($footerLinks as $link)
+                    <a href="{{ $link->url }}" class="footer__icon {{ $link->getColorClass() }}" target="_blank" rel="noopener">
+                        <i class="{{ $link->getIconClass() }} skills__icon_futter"></i>
+                    </a>
+                @empty
+                @endforelse
             </div>
-            
+            @if($footer && $footer->copyright_text)
+                <div class="footer__copy">{{ $footer->copyright_text }}</div>
+            @endif
         </footer>
         <script src="{{ asset('assets/js/theme-toggle.js') }}"></script>
         <script src="{{ asset('resources/js/app.js') }}"></script>
