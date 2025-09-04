@@ -203,6 +203,22 @@ img {
   margin-bottom: var(--mb-4);
   font-weight: 400;
 }
+.home__title_li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.home__title_li li {
+  font-size: var(--normal-font-size);
+  color: var(--second-color);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.home__title_li li.ai-skill {
+  font-size: calc(var(--normal-font-size) * 1.5);
+  font-weight: 700;
+  color: var(--first-color);
+}
 .home__social {
   display: flex;
   flex-direction: column;

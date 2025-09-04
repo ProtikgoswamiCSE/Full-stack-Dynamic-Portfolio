@@ -447,7 +447,6 @@
                 </div>
                 <form id="editSkillForm" method="POST">
                     @csrf
-                    @method('PUT')
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="edit_skill_name" class="form-label">Name</label>
@@ -679,12 +678,7 @@
                     csrf.type = 'hidden';
                     csrf.name = '_token';
                     csrf.value = '{{ csrf_token() }}';
-                    const method = document.createElement('input');
-                    method.type = 'hidden';
-                    method.name = '_method';
-                    method.value = 'DELETE';
                     form.appendChild(csrf);
-                    form.appendChild(method);
                     document.body.appendChild(form);
                     form.submit();
                 } catch (error) {
@@ -703,12 +697,7 @@
                 csrf.type = 'hidden';
                 csrf.name = '_token';
                 csrf.value = '{{ csrf_token() }}';
-                const method = document.createElement('input');
-                method.type = 'hidden';
-                method.name = '_method';
-                method.value = 'PATCH';
                 form.appendChild(csrf);
-                form.appendChild(method);
                 document.body.appendChild(form);
                 form.submit();
             } catch (error) {
