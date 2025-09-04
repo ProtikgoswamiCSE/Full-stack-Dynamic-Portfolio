@@ -197,6 +197,12 @@ img {
 .home__title-color {
   color: var(--first-color);
 }
+.home__subtitle {
+  font-size: var(--h2-font-size);
+  color: var(--second-color);
+  margin-bottom: var(--mb-4);
+  font-weight: 400;
+}
 .home__social {
   display: flex;
   flex-direction: column;

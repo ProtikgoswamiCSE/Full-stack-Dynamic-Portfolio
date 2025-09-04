@@ -324,7 +324,7 @@
                     <h5 class="modal-title">Add New Social Media Link</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('admin.social-links.add') }}" method="POST">
+                <form action="{{ route('admin.social.add') }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
@@ -552,7 +552,7 @@
                     document.getElementById('edit_order').value = linkData.order || 1;
                     document.getElementById('edit_is_active').checked = linkData.is_active || false;
                     
-                    document.getElementById('editSocialLinkForm').action = `{{ url('admin/social-links') }}/${id}/update`;
+                    document.getElementById('editSocialLinkForm').action = `{{ url('admin/social') }}/${id}/update`;
                     
                     new bootstrap.Modal(document.getElementById('editSocialLinkModal')).show();
                 } else {
@@ -569,7 +569,7 @@
                 try {
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `{{ url('admin/social-links') }}/${id}/delete`;
+                    form.action = `{{ url('admin/social') }}/${id}/delete`;
                     
                     const csrfToken = document.createElement('input');
                     csrfToken.type = 'hidden';
@@ -596,7 +596,7 @@
             try {
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = `{{ url('admin/social-links') }}/${id}/toggle`;
+                form.action = `{{ url('admin/social') }}/${id}/toggle`;
                 
                 const csrfToken = document.createElement('input');
                 csrfToken.type = 'hidden';
