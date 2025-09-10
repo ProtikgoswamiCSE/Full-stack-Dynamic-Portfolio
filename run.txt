@@ -15,7 +15,10 @@ composer install
 cp .env.example .env
 php artisan key:generate
 
-
+//another terminal
+npm install
+npm run dev
+npm run build
 php artisan migrate
 
 
