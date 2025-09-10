@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         // Seed admin panel content
         $this->call([
             AdminContentSeeder::class,
+            AdminUserSeeder::class,
         ]);
     }
 }

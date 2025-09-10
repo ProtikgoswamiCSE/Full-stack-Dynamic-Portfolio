@@ -190,7 +190,15 @@
                 <div class="p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h2>
-                        <div class="text-muted">Welcome to Portfolio Admin Panel</div>
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted me-3">Welcome, {{ Auth::user()->name }}!</span>
+                            <form method="POST" action="{{ route('admin.logout') }}" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- Stats Cards -->

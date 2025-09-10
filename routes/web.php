@@ -1,12 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Auth\AdminAuthController;
 
 
 Route::get('/', function () {
     return view('home');
-});
+})->name('home');
 
 Route::get('/about', function () {
     return view('about');
@@ -32,9 +34,27 @@ Route::get('/contact', function () {
     return view('contact');
 });
 
-// Admin Routes
+// Admin Authentication Routes
 Route::prefix('admin')->group(function () {
-    Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    // Auth routes (accessible without login)
+    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+    Route::post('/login', [AdminAuthController::class, 'login']);
+    Route::get('/register', [AdminAuthController::class, 'showRegisterForm'])->name('admin.register');
+    Route::post('/register', [AdminAuthController::class, 'register']);
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+    
+    // Redirect admin root to login if not authenticated
+    Route::get('/', function () {
+        if (Auth::check()) {
+            return redirect()->route('admin.dashboard');
+        }
+        return redirect()->route('admin.login');
+    });
+});
+
+// Protected Admin Routes (require authentication)
+Route::prefix('admin')->middleware(['auth', 'web'])->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/edit-home', [AdminController::class, 'editHome'])->name('admin.edit-home');
     Route::post('/update-home', [AdminController::class, 'updateHome'])->name('admin.update-home');
     
