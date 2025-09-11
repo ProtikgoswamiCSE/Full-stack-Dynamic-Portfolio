@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('profile_image_settings', function (Blueprint $table) {
             $table->id();
+            $table->string('profile_image')->nullable();
+            $table->string('image_alt_text')->nullable();
+            $table->string('background_color')->default('#4CAF50');
+            $table->string('border_color')->default('#8B4513');
+            $table->string('shadow_color')->default('#4CAF50');
+            $table->integer('shadow_opacity')->default(75);
             $table->timestamps();
         });
     }
