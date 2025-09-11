@@ -1,25 +1,23 @@
-composer create-project laravel/laravel Full-stack-Dynamic-Portfolio
+Minimal commands to run after cloning (Windows PowerShell)
 
+git clone <your_repo_url>
 
-composer update
-
-php artisan serve
-
-
+cd <your_project_folder>
 
 
 
-git clone https://github.com/username/project.git
-cd project
 composer install
-cp .env.example .env
+copy .env.example .env
 php artisan key:generate
 
-//another terminal
+
+(Get-Content .env) -replace 'DB_CONNECTION=.*','DB_CONNECTION=sqlite' | Set-Content .env
+(Get-Content .env) -replace 'DB_DATABASE=.*','DB_DATABASE=database/database.sqlite' | Set-Content .env
+
+php artisan migrate --seed
+php artisan storage:link
 npm install
-npm run dev
 npm run build
-php artisan migrate
 
 
 php artisan serve
