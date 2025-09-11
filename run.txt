@@ -1,38 +1,18 @@
-Minimal commands to run after cloning (Windows PowerShell)
+# Complete Commands to Run Laravel Portfolio Project (Windows PowerShell)
+# Updated with all commands used to fix and run the project
 
+# ========================================
+# 1. INITIAL SETUP COMMANDS
+# ========================================
+
+# Clone the repository
 git clone <your_repo_url>
-
 cd <your_project_folder>
 
-
-
+# Install PHP dependencies
 composer install
-copy .env.example .env
-php artisan key:generate
 
-
-(Get-Content .env) -replace 'DB_CONNECTION=.*','DB_CONNECTION=sqlite' | Set-Content .env
-(Get-Content .env) -replace 'DB_DATABASE=.*','DB_DATABASE=database/database.sqlite' | Set-Content .env
-
-php artisan migrate --seed
-php artisan storage:link
-npm install
-npm run build
-
-
-php artisan serve
-
-
-cmd /c setup.bat | cat
-php artisan migrate --seed --force
-php artisan serve --host=0.0.0.0 --port=8000
-php artisan config:cache
-php artisan key:generate
-
-
-
-
-echo APP_NAME="Protik Goswami Portfolio" > .env && echo APP_ENV=local >> .env && echo APP_KEY= >> .env && echo APP_DEBUG=true >> .env && echo APP_URL=http://localhost:8000 >> .env && echo LOG_CHANNEL=stack >> .env && echo LOG_DEPRECATIONS_CHANNEL=null >> .env && echo LOG_LEVEL=debug >> .env && echo DB_CONNECTION=mysql >> .env && echo DB_HOST=127.0.0.1 >> .env && echo DB_PORT=3306 >> .env && echo DB_DATABASE=laravel >> .env && echo DB_USERNAME=root >> .env && echo DB_PASSWORD= >> .env && echo BROADCAST_DRIVER=log >> .env && echo CACHE_STORE=file >> .env && echo FILESYSTEM_DISK=local >> .env && echo QUEUE_CONNECTION=sync >> .env && echo SESSION_DRIVER=file >> .env && echo SESSION_LIFETIME=120 >> .env
+# Create .env file with proper configuration
 @"
 APP_NAME="Protik Goswami Portfolio"
 APP_ENV=local
@@ -42,12 +22,8 @@ APP_URL=http://localhost:8000
 LOG_CHANNEL=stack
 LOG_DEPRECATIONS_CHANNEL=null
 LOG_LEVEL=debug
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=laravel
-DB_USERNAME=root
-DB_PASSWORD=
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
 BROADCAST_DRIVER=log
 CACHE_STORE=file
 FILESYSTEM_DISK=local
@@ -55,6 +31,79 @@ QUEUE_CONNECTION=sync
 SESSION_DRIVER=file
 SESSION_LIFETIME=120
 "@ | Out-File -FilePath .env -Encoding utf8
+
+# Generate application key
+php artisan key:generate
+
+# ========================================
+# 2. DATABASE SETUP COMMANDS
+# ========================================
+
+# Run migrations and seeders
+php artisan migrate --seed
+
+# If you encounter database errors, rollback and re-run:
+# php artisan migrate:rollback --step=1
+# php artisan migrate
+
+# Create storage link
+php artisan storage:link
+
+# ========================================
+# 3. FRONTEND SETUP COMMANDS
+# ========================================
+
+# Install Node.js dependencies
+npm install
+
+# Build frontend assets
+npm run build
+
+# ========================================
+# 4. SERVER START COMMANDS
+# ========================================
+
+# Start Laravel development server
+php artisan serve --host=0.0.0.0 --port=8000
+
+# Alternative: Use setup.bat script
+# cmd /c setup.bat
+
+# ========================================
+# 5. TROUBLESHOOTING COMMANDS
+# ========================================
+
+# Clear all caches
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+
+# Rebuild config cache
+php artisan config:cache
+
+# Check application status
+# try { $response = Invoke-WebRequest -Uri "http://localhost:8000" -UseBasicParsing; Write-Host "Status: $($response.StatusCode)" } catch { Write-Host "Error: $($_.Exception.Message)" }
+
+# ========================================
+# 6. ADMIN ACCESS INFORMATION
+# ========================================
+# Admin Panel: http://localhost:8000/admin
+# Email: admin@portfolio.com
+# Password: admin123
+
+# ========================================
+# 7. QUICK FIX COMMANDS (if needed)
+# ========================================
+
+# Fix profile image settings table (if error occurs):
+# php artisan migrate:rollback --step=1
+# php artisan migrate
+
+# Force re-seed database:
+# php artisan migrate:fresh --seed
+
+# Check database status:
+# php artisan migrate:status
 
 
 
