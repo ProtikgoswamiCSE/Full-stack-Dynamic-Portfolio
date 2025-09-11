@@ -16,7 +16,13 @@ document.addEventListener('DOMContentLoaded', function () {
     setIcon(isDarkStored);
 
     if (themeToggle) {
-        themeToggle.addEventListener('click', function () {
+        themeToggle.addEventListener('click', function (e) {
+            try {
+                // Prevent any default click behavior or bubbling to links
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
             const isDarkNow = body.classList.contains('dark-mode');
             const willBeDark = !isDarkNow;
 
@@ -32,6 +38,10 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 themeIcon.classList.remove('spin');
             }, 300); // match your spin animation duration
+            } catch (err) {
+                // Fail silently so the page never hangs
+                console.error('Theme toggle failed', err);
+            }
         });
     }
 

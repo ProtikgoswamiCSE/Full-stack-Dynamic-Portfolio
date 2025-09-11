@@ -583,7 +583,7 @@ img {
 body.dark-mode,
 html.dark-mode {
   background: #181818 !important;
-  color: #e0e0e0 !important;
+  color: #ffffff !important;
 }
 body.dark-mode .l-header,
 html.dark-mode .l-header {
@@ -594,16 +594,85 @@ body.dark-mode .nav__link,
 html.dark-mode .nav__link,
 body.dark-mode .nav__logo,
 html.dark-mode .nav__logo {
-  color: #00adb5 !important;
+  color: #ffffff !important;
 }
 body.dark-mode .footer,
 html.dark-mode .footer {
   background: #222831 !important;
-  color: #e0e0e0 !important;
+  color: #ffffff !important;
 }
 body.dark-mode .section-title,
 html.dark-mode .section-title {
-  color: #00adb5 !important;
+  color: #ffffff !important;
+}
+
+/* Make all common icons and links white in dark mode */
+body.dark-mode .home__social-icon,
+html.dark-mode .home__social-icon,
+body.dark-mode .footer__icon,
+html.dark-mode .footer__icon,
+body.dark-mode .skills__icon,
+html.dark-mode .skills__icon,
+body.dark-mode .skills__icon_futter,
+html.dark-mode .skills__icon_futter,
+body.dark-mode a,
+html.dark-mode a {
+  color: #ffffff !important;
+}
+
+/* Force all key text elements to white in dark mode */
+body.dark-mode h1,
+html.dark-mode h1,
+body.dark-mode h2,
+html.dark-mode h2,
+body.dark-mode h3,
+html.dark-mode h3,
+body.dark-mode h4,
+html.dark-mode h4,
+body.dark-mode h5,
+html.dark-mode h5,
+body.dark-mode h6,
+html.dark-mode h6,
+body.dark-mode p,
+html.dark-mode p,
+body.dark-mode li,
+html.dark-mode li,
+body.dark-mode span,
+html.dark-mode span,
+body.dark-mode .home__subtitle,
+html.dark-mode .home__subtitle,
+body.dark-mode .home__title,
+html.dark-mode .home__title,
+body.dark-mode .home__title_li li,
+html.dark-mode .home__title_li li,
+body.dark-mode .home__title-color,
+html.dark-mode .home__title-color,
+body.dark-mode .footer__title,
+html.dark-mode .footer__title,
+body.dark-mode .footer__description,
+html.dark-mode .footer__description,
+body.dark-mode .footer__copy,
+html.dark-mode .footer__copy {
+  color: #ffffff !important;
+}
+
+/* Dark mode: make skill bars and texts white */
+body.dark-mode .skills__data,
+html.dark-mode .skills__data,
+body.dark-mode .skills__names,
+html.dark-mode .skills__names,
+body.dark-mode .skills__data * {
+  color: #ffffff !important;
+}
+body.dark-mode .skills__bar,
+html.dark-mode .skills__bar {
+  background-color: #ffffff !important;
+}
+
+/* Extra specificity to persist after reload and animations */
+body.dark-mode .skills__data .skills__bar,
+html.dark-mode .skills__data .skills__bar {
+  background-color: #ffffff !important;
 }
 
 /* === Theme Toggle Animation === */
