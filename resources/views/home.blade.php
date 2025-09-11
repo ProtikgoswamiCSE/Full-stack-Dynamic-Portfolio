@@ -6,6 +6,15 @@
 
 <main class="l-main">
     <section class="home bd-grid" id="home">
+        @php $animEnabled = \App\Models\HomeContent::getContent('animation_enabled', '1') === '1'; @endphp
+        @if($animEnabled)
+        <style>
+        .bee-overlay{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.8}
+        .l-header,.bd-grid,.footer,.home__data,.home__social{position:relative;z-index:2}
+        .home__img{z-index:2}
+        </style>
+        <canvas id="bee-canvas" class="bee-overlay"></canvas>
+        @endif
         <div class="home__data">
             <h1 class="home__title">{!! \App\Models\HomeContent::getContent('title', 'Hi there,<br>I\'m <span class="home__title-color">Protik Goswami</span><br>Web Designer') !!}</h1>
             <p class="home__subtitle">{!! \App\Models\HomeContent::getContent('subtitle', 'Passionate about creating amazing web experiences') !!}</p>
@@ -121,4 +130,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 </script>
+@if($animEnabled)
+<script src="{{ asset('assets/js/bee-animation.js') }}"></script>
+@endif
 @endsection

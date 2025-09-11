@@ -821,6 +821,11 @@
                                     </div>
                                 </div>
 
+                                <div class="form-check form-switch mb-4">
+                                    <input class="form-check-input" type="checkbox" id="animation_enabled" name="animation_enabled" value="1" {{ (isset($homeContents['animation_enabled']) && $homeContents['animation_enabled']->content === '1') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="animation_enabled">Enable homepage animation</label>
+                                </div>
+
                                 <!-- Subtitle Section -->
                                 <div class="mb-4">
                                     <label for="subtitle" class="form-label">Subtitle</label>

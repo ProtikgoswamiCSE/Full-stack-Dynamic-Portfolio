@@ -243,6 +243,7 @@ class AdminController extends Controller
                 'subtitle' => 'required|string|max:255',
                 'skills_list' => 'required|string|max:1000',
                 'contact_button_text' => 'required|string|max:100',
+                'animation_enabled' => 'nullable'
             ]);
 
             // Update each section - don't escape HTML for title
@@ -250,16 +251,19 @@ class AdminController extends Controller
             $subtitleResult = HomeContent::updateContent('subtitle', $request->subtitle);
             $skillsResult = HomeContent::updateContent('skills_list', $request->skills_list);
             $contactResult = HomeContent::updateContent('contact_button_text', $request->contact_button_text);
+            $animationResult = HomeContent::updateContent('animation_enabled', $request->has('animation_enabled') ? '1' : '0');
 
             \Log::info('Home content updated successfully', [
                 'title' => $request->title,
                 'subtitle' => $request->subtitle,
                 'skills_list' => $request->skills_list,
                 'contact_button_text' => $request->contact_button_text,
+                'animation_enabled' => $request->has('animation_enabled') ? '1' : '0',
                 'title_result' => $titleResult ? $titleResult->id : 'failed',
                 'subtitle_result' => $subtitleResult ? $subtitleResult->id : 'failed',
                 'skills_result' => $skillsResult ? $skillsResult->id : 'failed',
-                'contact_result' => $contactResult ? $contactResult->id : 'failed'
+                'contact_result' => $contactResult ? $contactResult->id : 'failed',
+                'animation_result' => $animationResult ? $animationResult->id : 'failed'
             ]);
 
             return redirect()->route('admin.edit-home')->with('success', 'Home page updated successfully!');
