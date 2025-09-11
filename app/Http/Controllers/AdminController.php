@@ -11,6 +11,10 @@ use App\Models\FooterSocialLink;
 use App\Models\Achievement;
 use App\Models\AboutContent;
 use App\Models\Academic;
+use App\Models\ProfileImageSetting;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -30,7 +34,8 @@ class AdminController extends Controller
         $homeContents = HomeContent::all()->keyBy('section');
         $socialLinks = SocialMediaLink::getAllOrdered();
         $skills = Skill::orderBy('order')->get();
-        return view('admin.edit-home', compact('homeContents', 'socialLinks', 'skills'));
+        $profileSettings = ProfileImageSetting::getSettings();
+        return view('admin.edit-home', compact('homeContents', 'socialLinks', 'skills', 'profileSettings'));
     }
 
     // Simple editors for other pages (placeholders for now)
@@ -231,6 +236,8 @@ class AdminController extends Controller
     public function updateHome(Request $request)
     {
         try {
+            \Log::info('Update home request received', $request->all());
+            
             $request->validate([
                 'title' => 'required|string|max:500',
                 'subtitle' => 'required|string|max:255',
@@ -238,15 +245,77 @@ class AdminController extends Controller
                 'contact_button_text' => 'required|string|max:100',
             ]);
 
-            // Update each section
-            HomeContent::updateContent('title', $request->title);
-            HomeContent::updateContent('subtitle', $request->subtitle);
-            HomeContent::updateContent('skills_list', $request->skills_list);
-            HomeContent::updateContent('contact_button_text', $request->contact_button_text);
+            // Update each section - don't escape HTML for title
+            $titleResult = HomeContent::updateContent('title', $request->title);
+            $subtitleResult = HomeContent::updateContent('subtitle', $request->subtitle);
+            $skillsResult = HomeContent::updateContent('skills_list', $request->skills_list);
+            $contactResult = HomeContent::updateContent('contact_button_text', $request->contact_button_text);
+
+            \Log::info('Home content updated successfully', [
+                'title' => $request->title,
+                'subtitle' => $request->subtitle,
+                'skills_list' => $request->skills_list,
+                'contact_button_text' => $request->contact_button_text,
+                'title_result' => $titleResult ? $titleResult->id : 'failed',
+                'subtitle_result' => $subtitleResult ? $subtitleResult->id : 'failed',
+                'skills_result' => $skillsResult ? $skillsResult->id : 'failed',
+                'contact_result' => $contactResult ? $contactResult->id : 'failed'
+            ]);
 
             return redirect()->route('admin.edit-home')->with('success', 'Home page updated successfully!');
         } catch (\Exception $e) {
+            \Log::error('Error updating home page: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
             return redirect()->route('admin.edit-home')->with('error', 'Error updating home page: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update profile image settings
+     */
+    public function updateProfileImage(Request $request)
+    {
+        try {
+            $request->validate([
+                'profile_image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:5120',
+                'image_alt_text' => 'nullable|string|max:255',
+                'background_color' => 'required|string|max:7',
+                'border_color' => 'required|string|max:7',
+                'shadow_color' => 'required|string|max:7',
+                'shadow_opacity' => 'required|integer|min:0|max:100',
+            ]);
+
+            $data = $request->only([
+                'image_alt_text',
+                'background_color',
+                'border_color',
+                'shadow_color',
+                'shadow_opacity'
+            ]);
+
+            // Handle image upload
+            if ($request->hasFile('profile_image')) {
+                // Delete old image if exists
+                $currentSettings = ProfileImageSetting::getSettings();
+                if ($currentSettings->profile_image) {
+                    \Storage::disk('public')->delete($currentSettings->profile_image);
+                }
+                
+                $imagePath = $request->file('profile_image')->store('profile', 'public');
+                $data['profile_image'] = $imagePath;
+            }
+
+            $updatedSettings = ProfileImageSetting::updateSettings($data);
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Profile image settings updated successfully',
+                'data' => $updatedSettings
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error updating profile image settings: ' . $e->getMessage()]);
         }
     }
 
@@ -692,6 +761,366 @@ class AdminController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error toggling about content: ' . $e->getMessage()]);
+        }
+    }
+
+    // Data Management Methods
+    public function dataManagement()
+    {
+        $backupFiles = $this->getBackupFiles();
+        return view('admin.data-management', compact('backupFiles'));
+    }
+
+    public function reloadData(Request $request)
+    {
+        try {
+            // Backup existing images before reloading
+            $imageBackup = $this->backupImages();
+            
+            // Run the seeder to reload data
+            Artisan::call('db:seed', ['--class' => 'AdminContentSeeder']);
+            
+            // Restore images after reloading
+            $this->restoreImages($imageBackup);
+            
+            return response()->json([
+                'success' => true, 
+                'message' => 'Portfolio data reloaded successfully! Images preserved.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error reloading data: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function clearData(Request $request)
+    {
+        try {
+            // Backup existing images before clearing
+            $imageBackup = $this->backupImages();
+            
+            DB::transaction(function () {
+                HomeContent::truncate();
+                SocialMediaLink::truncate();
+                Skill::truncate();
+                Footer::truncate();
+                FooterSocialLink::truncate();
+                Achievement::truncate();
+                Academic::truncate();
+                AboutContent::truncate();
+                ProfileImageSetting::truncate();
+            });
+
+            // Restore images after clearing
+            $this->restoreImages($imageBackup);
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'All portfolio data cleared successfully! Images preserved.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error clearing data: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function createBackup(Request $request)
+    {
+        try {
+            $timestamp = now()->format('Y-m-d_H-i-s');
+            $backupPath = "backups/portfolio_backup_{$timestamp}.json";
+            
+            // Create backup directory if it doesn't exist
+            if (!Storage::exists('backups')) {
+                Storage::makeDirectory('backups');
+            }
+
+            // Export data to JSON format
+            $backupData = [
+                'home_contents' => HomeContent::all()->toArray(),
+                'social_media_links' => SocialMediaLink::all()->toArray(),
+                'skills' => Skill::all()->toArray(),
+                'footer' => Footer::all()->toArray(),
+                'footer_social_links' => FooterSocialLink::all()->toArray(),
+                'achievements' => Achievement::all()->toArray(),
+                'academics' => Academic::all()->toArray(),
+                'about_contents' => AboutContent::all()->toArray(),
+                'profile_image_settings' => ProfileImageSetting::all()->toArray(),
+                'created_at' => now()->toISOString()
+            ];
+
+            Storage::put($backupPath, json_encode($backupData, JSON_PRETTY_PRINT));
+            
+            return response()->json([
+                'success' => true, 
+                'message' => 'Backup created successfully!',
+                'backup_file' => basename($backupPath)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error creating backup: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function restoreData(Request $request)
+    {
+        try {
+            $backupFile = $request->input('backup_file');
+            
+            if (!$backupFile) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'No backup file specified'
+                ]);
+            }
+
+            $backupPath = "backups/{$backupFile}";
+            
+            if (!Storage::exists($backupPath)) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Backup file not found'
+                ]);
+            }
+
+            $backupData = json_decode(Storage::get($backupPath), true);
+            
+            if (!$backupData) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Invalid backup file format'
+                ]);
+            }
+
+            // Clear existing data
+            DB::transaction(function () {
+                HomeContent::truncate();
+                SocialMediaLink::truncate();
+                Skill::truncate();
+                Footer::truncate();
+                FooterSocialLink::truncate();
+                Achievement::truncate();
+                Academic::truncate();
+                AboutContent::truncate();
+                ProfileImageSetting::truncate();
+            });
+
+            // Restore data
+            foreach ($backupData['home_contents'] as $data) {
+                unset($data['id']);
+                HomeContent::create($data);
+            }
+
+            foreach ($backupData['social_media_links'] as $data) {
+                unset($data['id']);
+                SocialMediaLink::create($data);
+            }
+
+            foreach ($backupData['skills'] as $data) {
+                unset($data['id']);
+                Skill::create($data);
+            }
+
+            foreach ($backupData['footer'] as $data) {
+                unset($data['id']);
+                Footer::create($data);
+            }
+
+            foreach ($backupData['footer_social_links'] as $data) {
+                unset($data['id']);
+                FooterSocialLink::create($data);
+            }
+
+            foreach ($backupData['achievements'] as $data) {
+                unset($data['id']);
+                Achievement::create($data);
+            }
+
+            foreach ($backupData['academics'] as $data) {
+                unset($data['id']);
+                Academic::create($data);
+            }
+
+            foreach ($backupData['about_contents'] as $data) {
+                unset($data['id']);
+                AboutContent::create($data);
+            }
+
+            foreach ($backupData['profile_image_settings'] as $data) {
+                unset($data['id']);
+                ProfileImageSetting::create($data);
+            }
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Data restored successfully!',
+                'backup_date' => $backupData['created_at']
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error restoring data: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function listBackups()
+    {
+        try {
+            $backupFiles = $this->getBackupFiles();
+            return response()->json([
+                'success' => true, 
+                'backups' => $backupFiles
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error listing backups: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    private function getBackupFiles()
+    {
+        $backupFiles = [];
+        
+        if (Storage::exists('backups')) {
+            $files = Storage::files('backups');
+            
+            foreach ($files as $file) {
+                if (str_ends_with($file, '.json')) {
+                    $backupFiles[] = [
+                        'filename' => basename($file),
+                        'path' => $file,
+                        'size' => Storage::size($file),
+                        'created_at' => Storage::lastModified($file)
+                    ];
+                }
+            }
+            
+            // Sort by creation time (newest first)
+            usort($backupFiles, function($a, $b) {
+                return $b['created_at'] - $a['created_at'];
+            });
+        }
+        
+        return $backupFiles;
+    }
+
+    /**
+     * Backup all images before data operations
+     */
+    private function backupImages()
+    {
+        $imageBackup = [];
+        
+        try {
+            // Backup profile images
+            $profileSettings = ProfileImageSetting::all();
+            foreach ($profileSettings as $setting) {
+                if ($setting->profile_image && Storage::disk('public')->exists($setting->profile_image)) {
+                    $imageBackup['profile'][$setting->id] = [
+                        'path' => $setting->profile_image,
+                        'content' => Storage::disk('public')->get($setting->profile_image)
+                    ];
+                }
+            }
+
+            // Backup achievement images
+            $achievements = Achievement::all();
+            foreach ($achievements as $achievement) {
+                if ($achievement->certificate_image && Storage::disk('public')->exists($achievement->certificate_image)) {
+                    $imageBackup['achievements'][$achievement->id] = [
+                        'path' => $achievement->certificate_image,
+                        'content' => Storage::disk('public')->get($achievement->certificate_image)
+                    ];
+                }
+            }
+
+            // Backup academic images
+            $academics = Academic::all();
+            foreach ($academics as $academic) {
+                if ($academic->certificate_image && Storage::disk('public')->exists($academic->certificate_image)) {
+                    $imageBackup['academics'][$academic->id] = [
+                        'path' => $academic->certificate_image,
+                        'content' => Storage::disk('public')->get($academic->certificate_image)
+                    ];
+                }
+            }
+
+            // Backup about content images
+            $aboutContents = AboutContent::all();
+            foreach ($aboutContents as $content) {
+                if ($content->image && Storage::disk('public')->exists($content->image)) {
+                    $imageBackup['about'][$content->id] = [
+                        'path' => $content->image,
+                        'content' => Storage::disk('public')->get($content->image)
+                    ];
+                }
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('Error backing up images: ' . $e->getMessage());
+        }
+
+        return $imageBackup;
+    }
+
+    /**
+     * Restore images after data operations
+     */
+    private function restoreImages($imageBackup)
+    {
+        try {
+            // Restore profile images
+            if (isset($imageBackup['profile'])) {
+                foreach ($imageBackup['profile'] as $id => $imageData) {
+                    if (Storage::disk('public')->exists($imageData['path'])) {
+                        continue; // Image already exists
+                    }
+                    Storage::disk('public')->put($imageData['path'], $imageData['content']);
+                }
+            }
+
+            // Restore achievement images
+            if (isset($imageBackup['achievements'])) {
+                foreach ($imageBackup['achievements'] as $id => $imageData) {
+                    if (Storage::disk('public')->exists($imageData['path'])) {
+                        continue; // Image already exists
+                    }
+                    Storage::disk('public')->put($imageData['path'], $imageData['content']);
+                }
+            }
+
+            // Restore academic images
+            if (isset($imageBackup['academics'])) {
+                foreach ($imageBackup['academics'] as $id => $imageData) {
+                    if (Storage::disk('public')->exists($imageData['path'])) {
+                        continue; // Image already exists
+                    }
+                    Storage::disk('public')->put($imageData['path'], $imageData['content']);
+                }
+            }
+
+            // Restore about content images
+            if (isset($imageBackup['about'])) {
+                foreach ($imageBackup['about'] as $id => $imageData) {
+                    if (Storage::disk('public')->exists($imageData['path'])) {
+                        continue; // Image already exists
+                    }
+                    Storage::disk('public')->put($imageData['path'], $imageData['content']);
+                }
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('Error restoring images: ' . $e->getMessage());
         }
     }
 }

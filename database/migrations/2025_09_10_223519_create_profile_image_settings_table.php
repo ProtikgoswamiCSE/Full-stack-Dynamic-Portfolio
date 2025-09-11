@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('home_contents', function (Blueprint $table) {
+        Schema::create('profile_image_settings', function (Blueprint $table) {
             $table->id();
-            $table->string('section')->unique(); // e.g., 'title', 'subtitle', 'skills_list'
-            $table->text('content'); // The actual content
             $table->timestamps();
         });
     }
@@ -24,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('home_contents');
+        Schema::dropIfExists('profile_image_settings');
     }
 };

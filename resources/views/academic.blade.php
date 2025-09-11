@@ -10,7 +10,7 @@
     }
     
     .academic-link:hover {
-        transform: scale(1.05);
+        transform: none;
         text-decoration: none;
         color: inherit;
     }
@@ -40,7 +40,7 @@
     .academic-pdf:hover {
         background: #e9ecef;
         border-color: #6c757d;
-        transform: scale(1.02);
+        transform: none;
     }
     
     .academic-pdf i {

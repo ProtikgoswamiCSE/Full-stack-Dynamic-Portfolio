@@ -10,7 +10,7 @@
     }
     
     .achievement-link:hover {
-        transform: scale(1.05);
+        transform: none;
         text-decoration: none;
         color: inherit;
     }
@@ -21,6 +21,9 @@
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         transition: box-shadow 0.3s ease;
+        object-fit: cover;
+        max-height: 200px;
+        width: 200px;
     }
     
     .achievement-link:hover .achievement-image {
@@ -40,7 +43,7 @@
     .achievement-pdf:hover {
         background: #e9ecef;
         border-color: #6c757d;
-        transform: scale(1.02);
+        transform: none;
     }
     
     .achievement-pdf i {
