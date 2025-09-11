@@ -8,7 +8,7 @@
     <section class="home bd-grid" id="home">
         <div class="home__data">
             <h1 class="home__title">{!! \App\Models\HomeContent::getContent('title', 'Hi there,<br>I\'m <span class="home__title-color">Protik Goswami</span><br>Web Designer') !!}</h1>
-            <p class="home__subtitle">{{ \App\Models\HomeContent::getContent('subtitle', 'Passionate about creating amazing web experiences') }}</p>
+            <p class="home__subtitle">{!! \App\Models\HomeContent::getContent('subtitle', 'Passionate about creating amazing web experiences') !!}</p>
             <ul class="home__title_li">
                 @php
                     $skills = \App\Models\HomeContent::getContent('skills_list', "* Network Security Specialist\n* Programming\n* UI/UX Design\n* Artificial Intelligence");
