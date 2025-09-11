@@ -272,21 +272,23 @@
         }
 
         .home__blob-img-preview {
-            width: 150px;
+            width: 400px;
+            height: 400px;
             border: 3px solid var(--border-color-preview, #8B4513);
             border-radius: 50%;
             transition: all 0.3s ease;
             cursor: pointer;
+            object-fit: cover;
         }
 
         .home__blob-img-preview:hover {
-            transform: scale(1.1);
+            transform: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
         .current-profile-img {
-            width: 90px;
-            height: 90px;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid #667eea;
@@ -295,7 +297,7 @@
         }
 
         .current-profile-img:hover {
-            transform: scale(1.1);
+            transform: none;
             border-color: #4facfe;
         }
 
@@ -310,6 +312,8 @@
         .current-profile-img {
             max-width: 200px;
             max-height: 200px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
             border: 3px solid #667eea;
             object-fit: cover;
@@ -908,13 +912,13 @@
                                     </div>
                                     <div class="preview-section text-center position-relative">
                                         <div class="profile-preview-container">
-                                            <svg class="home__blob-preview" viewBox="0 0 479 467" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="width: 220px; height: 220px; --bg-color-preview: {{ $profileSettings->background_color ?? '#4CAF50' }}; --border-color-preview: {{ $profileSettings->border_color ?? '#8B4513' }}; --shadow-color-preview: {{ $profileSettings->shadow_color ?? '#4CAF50' }}; --shadow-opacity-preview: {{ ($profileSettings->shadow_opacity ?? 75) / 100 }};">
+                                            <svg class="home__blob-preview" viewBox="0 0 479 467" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="width: 450px; height: 450px; --bg-color-preview: {{ $profileSettings->background_color ?? '#4CAF50' }}; --border-color-preview: {{ $profileSettings->border_color ?? '#8B4513' }}; --shadow-color-preview: {{ $profileSettings->shadow_color ?? '#4CAF50' }}; --shadow-opacity-preview: {{ ($profileSettings->shadow_opacity ?? 75) / 100 }};">
                                                 <mask id="mask0-preview" mask-type="alpha">
                                                     <path d="M9.19024 145.964C34.0253 76.5814 114.865 54.7299 184.111 29.4823C245.804 6.98884 311.86 -14.9503 370.735 14.143C431.207 44.026 467.948 107.508 477.191 174.311C485.897 237.229 454.931 294.377 416.506 344.954C373.74 401.245 326.068 462.801 255.442 466.189C179.416 469.835 111.552 422.137 65.1576 361.805C17.4835 299.81 -17.1617 219.583 9.19024 145.964Z"/>
                                                 </mask>
                                                 <g mask="url(#mask0-preview)">
                                                     <path d="M9.19024 145.964C34.0253 76.5814 114.865 54.7299 184.111 29.4823C245.804 6.98884 311.86 -14.9503 370.735 14.143C431.207 44.026 467.948 107.508 477.191 174.311C485.897 237.229 454.931 294.377 416.506 344.954C373.74 401.245 326.068 462.801 255.442 466.189C179.416 469.835 111.552 422.137 65.1576 361.805C17.4835 299.81 -17.1617 219.583 9.19024 145.964Z" fill="var(--bg-color-preview)"/>
-                                                    <image class="home__blob-img-preview" x="30" y="40" href="{{ $profileSettings->profile_image ? asset('storage/' . $profileSettings->profile_image) : asset('assets/img/protik.png') }}" width="450" height="410" alt="Profile Preview" style="border: 3px solid var(--border-color-preview); border-radius: 50%; cursor: pointer;" onclick="zoomImage(this)" onerror="this.onerror=null; this.href='{{ asset('assets/img/protik.png') }}';"/>
+                                                    <image class="home__blob-img-preview" x="15" y="25" href="{{ $profileSettings->profile_image ? asset('storage/' . $profileSettings->profile_image) : asset('assets/img/protik.png') }}" width="550" height="550" alt="Profile Preview" style="border: 3px solid var(--border-color-preview); border-radius: 50%; cursor: pointer;" onclick="zoomImage(this)" onerror="this.onerror=null; this.href='{{ asset('assets/img/protik.png') }}';"/>
                                                 </g>
                                             </svg>
                                             <div class="mt-3">
