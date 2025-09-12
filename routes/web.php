@@ -47,6 +47,36 @@ Route::get('/api/profile-settings', function () {
     ]);
 });
 
+// API route to get AI image for skills page
+Route::get('/api/ai-image/skills', function () {
+    $aiImage = \App\Models\AiImage::getActiveImageForPage('skills');
+    if ($aiImage) {
+        // Check if the image file actually exists
+        $imagePath = storage_path('app/public/' . $aiImage->image_path);
+        if (file_exists($imagePath)) {
+            return response()->json([
+                'success' => true,
+                'image_url' => asset('storage/' . $aiImage->image_path),
+                'alt_text' => $aiImage->alt_text,
+                'updated_at' => $aiImage->updated_at
+            ]);
+        } else {
+            // Image file doesn't exist, return fallback
+            return response()->json([
+                'success' => false,
+                'message' => 'AI image file not found',
+                'image_url' => asset('assets/img/IMG_20231214_030304.jpg') // fallback to default
+            ]);
+        }
+    } else {
+        return response()->json([
+            'success' => false,
+            'message' => 'No AI image found',
+            'image_url' => asset('assets/img/IMG_20231214_030304.jpg') // fallback to default
+        ]);
+    }
+});
+
 // Admin Authentication Routes
 Route::prefix('admin')->group(function () {
     // Auth routes (accessible without login)
@@ -66,7 +96,7 @@ Route::prefix('admin')->group(function () {
 });
 
 // Protected Admin Routes (require authentication)
-Route::prefix('admin')->middleware(['auth', 'web'])->group(function () {
+Route::prefix('admin')->middleware(['admin.auth', 'web'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/edit-home', [AdminController::class, 'editHome'])->name('admin.edit-home');
     Route::post('/update-home', [AdminController::class, 'updateHome'])->name('admin.update-home');
@@ -120,6 +150,10 @@ Route::prefix('admin')->middleware(['auth', 'web'])->group(function () {
     Route::post('/skills/{id}/update', [AdminController::class, 'updateSkill'])->name('admin.skills.update');
     Route::post('/skills/{id}/delete', [AdminController::class, 'deleteSkill'])->name('admin.skills.delete');
     Route::post('/skills/{id}/toggle', [AdminController::class, 'toggleSkill'])->name('admin.skills.toggle');
+    
+    // AI Image Management
+    Route::post('/ai-image/update', [AdminController::class, 'updateAiImage'])->name('admin.ai-image.update');
+    Route::get('/ai-image/get', [AdminController::class, 'getAiImage'])->name('admin.ai-image.get');
     
     // Data Management Routes
     Route::get('/data-management', [AdminController::class, 'dataManagement'])->name('admin.data-management');

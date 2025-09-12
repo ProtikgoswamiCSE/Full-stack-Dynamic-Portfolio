@@ -1109,7 +1109,11 @@
                                                 <div class="d-flex justify-content-between align-items-start">
                                                     <div class="flex-grow-1">
                                                         <div class="d-flex align-items-center mb-2">
-                                                            <i class="{{ $skill->icon_class }} icon-preview"></i>
+                                                            @if($skill->image)
+                                                                <img src="{{ asset('storage/' . $skill->image) }}" alt="{{ $skill->name }}" class="skill-image-preview me-2" style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px;">
+                                                            @elseif($skill->icon_class)
+                                                                <i class="{{ $skill->icon_class }} icon-preview"></i>
+                                                            @endif
                                                             <h6 class="mb-0">{{ $skill->name }}</h6>
                                                         </div>
                                                         <small class="text-muted d-block mb-2">Proficiency: {{ $skill->proficiency_percent }}%</small>
@@ -1150,7 +1154,98 @@
                             @endif
                         </div>
                     </div>
+
+                    <!-- AI Image Management for Skills Page -->
+                    <div class="card mt-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-robot me-2"></i>AI Image for Skills Page</h5>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateAiImageModal">
+                                <i class="fas fa-upload me-2"></i>Update AI Image
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            @if(isset($aiImage) && $aiImage)
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="ai-image-preview">
+                                            <img src="{{ asset('storage/' . $aiImage->image_path) }}" 
+                                                 alt="{{ $aiImage->alt_text }}" 
+                                                 class="img-fluid rounded" 
+                                                 style="max-height: 300px; width: 100%; object-fit: cover;">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Current AI Image</h6>
+                                        <p class="text-muted mb-2">
+                                            <strong>Alt Text:</strong> {{ $aiImage->alt_text ?? 'No alt text' }}
+                                        </p>
+                                        <p class="text-muted mb-2">
+                                            <strong>Updated:</strong> {{ $aiImage->updated_at->format('M d, Y H:i') }}
+                                        </p>
+                                        <p class="text-muted mb-3">
+                                            <strong>Status:</strong> 
+                                            <span class="badge bg-success">Active</span>
+                                        </p>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#updateAiImageModal">
+                                                <i class="fas fa-edit me-1"></i>Update Image
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-info" onclick="refreshAiImage()">
+                                                <i class="fas fa-sync-alt me-1"></i>Refresh Preview
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="text-center py-4">
+                                    <i class="fas fa-robot fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No AI Image Set</h5>
+                                    <p class="text-muted">Upload an AI-generated image for the skills page</p>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateAiImageModal">
+                                        <i class="fas fa-upload me-2"></i>Upload AI Image
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update AI Image Modal -->
+    <div class="modal fade" id="updateAiImageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update AI Image for Skills Page</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="updateAiImageForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="ai_image" class="form-label">AI Generated Image</label>
+                            <input type="file" class="form-control" id="ai_image" name="image" accept="image/*" required>
+                            <div class="form-text">Upload a new AI-generated image (JPEG, PNG, JPG, GIF - Max 5MB)</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ai_alt_text" class="form-label">Alt Text</label>
+                            <input type="text" class="form-control" id="ai_alt_text" name="alt_text" placeholder="Describe the image for accessibility">
+                            <div class="form-text">Optional: Describe the image for screen readers</div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> This image will be displayed on the skills page and will automatically refresh every 2 seconds for visitors.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i>Update AI Image
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -1251,7 +1346,7 @@
                     <h5 class="modal-title">Add Skill</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('admin.skills.add') }}" method="POST">
+                <form action="{{ route('admin.skills.add') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
@@ -1261,6 +1356,11 @@
                         <div class="mb-3">
                             <label for="skill_icon_class" class="form-label">Icon Class (FontAwesome)</label>
                             <input type="text" class="form-control" id="skill_icon_class" name="icon_class" placeholder="e.g., fa-brands fa-html5">
+                        </div>
+                        <div class="mb-3">
+                            <label for="skill_image" class="form-label">Skill Image (Optional)</label>
+                            <input type="file" class="form-control" id="skill_image" name="image" accept="image/*">
+                            <div class="form-text">Upload an image for this skill (JPEG, PNG, JPG, GIF - Max 5MB)</div>
                         </div>
                         <div class="mb-3">
                             <label for="skill_percent" class="form-label">Proficiency (%)</label>
@@ -1284,7 +1384,7 @@
                     <h5 class="modal-title">Edit Skill</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="editSkillForm" method="POST">
+                <form id="editSkillForm" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
@@ -1294,6 +1394,15 @@
                         <div class="mb-3">
                             <label for="edit_skill_icon_class" class="form-label">Icon Class</label>
                             <input type="text" class="form-control" id="edit_skill_icon_class" name="icon_class">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_skill_image" class="form-label">Skill Image (Optional)</label>
+                            <input type="file" class="form-control" id="edit_skill_image" name="image" accept="image/*">
+                            <div class="form-text">Upload an image for this skill (JPEG, PNG, JPG, GIF - Max 5MB)</div>
+                            <div id="current_image_preview" class="mt-2" style="display: none;">
+                                <small class="text-muted">Current image:</small>
+                                <img id="current_image" src="" alt="Current skill image" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="edit_skill_percent" class="form-label">Proficiency (%)</label>
@@ -2044,6 +2153,84 @@
             } catch (e) {}
         });
 
+        // AI Image Management Functions
+        function refreshAiImage() {
+            fetch('/api/ai-image/skills')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the image preview
+                        const imgElement = document.querySelector('.ai-image-preview img');
+                        if (imgElement) {
+                            imgElement.src = data.image_url + '?t=' + new Date().getTime();
+                            imgElement.alt = data.alt_text;
+                        }
+                        
+                        // Update the info section
+                        const altTextElement = document.querySelector('.ai-image-preview').parentElement.nextElementSibling.querySelector('p:first-child');
+                        if (altTextElement) {
+                            altTextElement.innerHTML = `<strong>Alt Text:</strong> ${data.alt_text || 'No alt text'}`;
+                        }
+                        
+                        // Show success message
+                        showNotification('AI image refreshed successfully!', 'success');
+                    } else {
+                        showNotification('Failed to refresh AI image', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing AI image:', error);
+                    showNotification('Error refreshing AI image', 'error');
+                });
+        }
+
+        // Handle AI image form submission
+        document.getElementById('updateAiImageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+            submitBtn.disabled = true;
+            
+            fetch('{{ route("admin.ai-image.update") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('updateAiImageModal'));
+                    modal.hide();
+                    
+                    // Refresh the page to show updated image
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating AI image:', error);
+                showNotification('Error updating AI image', 'error');
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+
         // Global function to test preview functionality
         window.testPreview = function() {
             updateTitlePreview();
@@ -2100,6 +2287,17 @@
                 document.getElementById('edit_skill_percent').value = skill.proficiency_percent || 0;
                 document.getElementById('edit_skill_order').value = skill.order || 1;
                 document.getElementById('edit_skill_is_active').checked = !!skill.is_active;
+                
+                // Handle image preview
+                const currentImagePreview = document.getElementById('current_image_preview');
+                const currentImage = document.getElementById('current_image');
+                if (skill.image) {
+                    currentImage.src = `{{ asset('storage/') }}/${skill.image}`;
+                    currentImagePreview.style.display = 'block';
+                } else {
+                    currentImagePreview.style.display = 'none';
+                }
+                
                 document.getElementById('editSkillForm').action = `{{ url('admin/skills') }}/${id}/update`;
                 new bootstrap.Modal(document.getElementById('editSkillModal')).show();
             } catch (error) {

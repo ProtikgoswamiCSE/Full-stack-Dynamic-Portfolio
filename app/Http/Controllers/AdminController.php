@@ -12,6 +12,7 @@ use App\Models\Achievement;
 use App\Models\AboutContent;
 use App\Models\Academic;
 use App\Models\ProfileImageSetting;
+use App\Models\AiImage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -35,7 +36,8 @@ class AdminController extends Controller
         $socialLinks = SocialMediaLink::getAllOrdered();
         $skills = Skill::orderBy('order')->get();
         $profileSettings = ProfileImageSetting::getSettings();
-        return view('admin.edit-home', compact('homeContents', 'socialLinks', 'skills', 'profileSettings'));
+        $aiImage = AiImage::getActiveImageForPage('skills');
+        return view('admin.edit-home', compact('homeContents', 'socialLinks', 'skills', 'profileSettings', 'aiImage'));
     }
 
     // Simple editors for other pages (placeholders for now)
@@ -162,6 +164,7 @@ class AdminController extends Controller
             $request->validate([
                 'name' => 'required|string|max:100',
                 'icon_class' => 'nullable|string|max:100',
+                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:5120',
                 'proficiency_percent' => 'required|integer|min:0|max:100',
             ]);
 
@@ -171,6 +174,13 @@ class AdminController extends Controller
             $skill->proficiency_percent = $request->proficiency_percent;
             $skill->order = Skill::getNextOrder();
             $skill->is_active = true;
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('skills', 'public');
+                $skill->image = $imagePath;
+            }
+
             $skill->save();
 
             return redirect()->route('admin.edit-home')->with('success', 'Skill added successfully!');
@@ -185,12 +195,24 @@ class AdminController extends Controller
             $request->validate([
                 'name' => 'required|string|max:100',
                 'icon_class' => 'nullable|string|max:100',
+                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:5120',
                 'proficiency_percent' => 'required|integer|min:0|max:100',
                 'order' => 'required|integer|min:1',
                 'is_active' => 'boolean',
             ]);
 
             $skill = Skill::findOrFail($id);
+            
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                // Delete old image if exists
+                if ($skill->image) {
+                    \Storage::disk('public')->delete($skill->image);
+                }
+                $imagePath = $request->file('image')->store('skills', 'public');
+                $skill->image = $imagePath;
+            }
+
             $skill->update([
                 'name' => $request->name,
                 'icon_class' => $request->icon_class,
@@ -209,6 +231,12 @@ class AdminController extends Controller
     {
         try {
             $skill = Skill::findOrFail($id);
+            
+            // Delete image if exists
+            if ($skill->image) {
+                \Storage::disk('public')->delete($skill->image);
+            }
+            
             $skill->delete();
             return redirect()->route('admin.edit-home')->with('success', 'Skill deleted successfully!');
         } catch (\Exception $e) {
@@ -1070,6 +1098,17 @@ class AdminController extends Controller
                 }
             }
 
+            // Backup skill images
+            $skills = Skill::all();
+            foreach ($skills as $skill) {
+                if ($skill->image && Storage::disk('public')->exists($skill->image)) {
+                    $imageBackup['skills'][$skill->id] = [
+                        'path' => $skill->image,
+                        'content' => Storage::disk('public')->get($skill->image)
+                    ];
+                }
+            }
+
         } catch (\Exception $e) {
             \Log::error('Error backing up images: ' . $e->getMessage());
         }
@@ -1123,8 +1162,76 @@ class AdminController extends Controller
                 }
             }
 
+            // Restore skill images
+            if (isset($imageBackup['skills'])) {
+                foreach ($imageBackup['skills'] as $id => $imageData) {
+                    if (Storage::disk('public')->exists($imageData['path'])) {
+                        continue; // Image already exists
+                    }
+                    Storage::disk('public')->put($imageData['path'], $imageData['content']);
+                }
+            }
+
         } catch (\Exception $e) {
             \Log::error('Error restoring images: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * AI Image Management for Skills Page
+     */
+    public function updateAiImage(Request $request)
+    {
+        try {
+            $request->validate([
+                'image' => 'required|file|mimes:jpeg,png,jpg,gif|max:5120',
+                'alt_text' => 'nullable|string|max:255',
+            ]);
+
+            // Deactivate current active image
+            AiImage::where('page_type', 'skills')
+                   ->where('is_active', true)
+                   ->update(['is_active' => false]);
+
+            // Handle image upload
+            $imagePath = $request->file('image')->store('ai-images', 'public');
+
+            // Create new active image
+            $aiImage = new AiImage();
+            $aiImage->image_path = $imagePath;
+            $aiImage->alt_text = $request->alt_text ?? 'AI Generated Image';
+            $aiImage->page_type = 'skills';
+            $aiImage->is_active = true;
+            $aiImage->save();
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'AI image updated successfully',
+                'image_url' => asset('storage/' . $imagePath)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error updating AI image: ' . $e->getMessage()]);
+        }
+    }
+
+    public function getAiImage()
+    {
+        try {
+            $aiImage = AiImage::getActiveImageForPage('skills');
+            if ($aiImage) {
+                return response()->json([
+                    'success' => true,
+                    'image_url' => asset('storage/' . $aiImage->image_path),
+                    'alt_text' => $aiImage->alt_text
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No AI image found'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error fetching AI image: ' . $e->getMessage()]);
         }
     }
 }
