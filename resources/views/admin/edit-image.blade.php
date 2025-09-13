@@ -43,6 +43,9 @@
                         <a class="nav-link" href="{{ route('admin.edit-work') }}">
                             <i class="fas fa-briefcase me-2"></i> Edit Work
                         </a>
+                        <a class="nav-link" href="{{ route('admin.edit-project') }}">
+                            <i class="fas fa-project-diagram me-2"></i> Edit Project
+                        </a>
                         <a class="nav-link active" href="{{ route('admin.edit-image') }}">
                             <i class="fas fa-images me-2"></i> Edit Images
                         </a>

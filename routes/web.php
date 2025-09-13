@@ -24,6 +24,10 @@ Route::get('/skills', function () {
 Route::get('/work', function () {
     return view('work');
 });
+
+Route::get('/project', function () {
+    return view('project');
+});
 Route::get('/Image', function () {
     return view('Image');
 });
@@ -128,6 +132,7 @@ Route::prefix('admin')->middleware(['admin.auth', 'web'])->group(function () {
     Route::get('/edit-achivement', [AdminController::class, 'editAchivement'])->name('admin.edit-achivement');
     Route::get('/edit-academic', [AdminController::class, 'editAcademic'])->name('admin.edit-academic');
     Route::get('/edit-work', [AdminController::class, 'editWork'])->name('admin.edit-work');
+    Route::get('/edit-project', [AdminController::class, 'editProject'])->name('admin.edit-project');
     Route::get('/edit-image', [AdminController::class, 'editImage'])->name('admin.edit-image');
     Route::get('/edit-contact', [AdminController::class, 'editContact'])->name('admin.edit-contact');
     Route::get('/edit-footer', [AdminController::class, 'editFooter'])->name('admin.edit-footer');
@@ -154,6 +159,13 @@ Route::prefix('admin')->middleware(['admin.auth', 'web'])->group(function () {
     // AI Image Management
     Route::post('/ai-image/update', [AdminController::class, 'updateAiImage'])->name('admin.ai-image.update');
     Route::get('/ai-image/get', [AdminController::class, 'getAiImage'])->name('admin.ai-image.get');
+    
+    // Project Management
+    Route::post('/project/add', [AdminController::class, 'addProject'])->name('admin.project.add');
+    Route::post('/project/{id}/update', [AdminController::class, 'updateProject'])->name('admin.project.update');
+    Route::post('/project/{id}/delete', [AdminController::class, 'deleteProject'])->name('admin.project.delete');
+    Route::post('/project/{id}/toggle', [AdminController::class, 'toggleProject'])->name('admin.project.toggle');
+    Route::get('/project/{id}', [AdminController::class, 'getProject'])->name('admin.project.get');
     
     // Data Management Routes
     Route::get('/data-management', [AdminController::class, 'dataManagement'])->name('admin.data-management');

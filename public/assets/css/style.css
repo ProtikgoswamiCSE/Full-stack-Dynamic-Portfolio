@@ -63,7 +63,7 @@ ul {
 }
 
 a {
-  text-decoration: none;
+  text-decoration: none !important;
 }
 
 img {
@@ -123,6 +123,7 @@ img {
   justify-content: space-between;
   align-items: center;
   font-weight: var(--font-semi);
+  padding: 0 1rem;
 }
 @media screen and (max-width: 767px) {
   .nav__menu {
@@ -134,6 +135,10 @@ img {
     padding: 2rem;
     background-color: var(--second-color);
     transition: 0.5s;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
   }
 }
 .nav__item {
@@ -142,19 +147,19 @@ img {
 .nav__link {
   position: relative;
   color: #fff;
+  text-decoration: none !important;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 .nav__link:hover {
-  position: relative;
+  color: var(--first-color);
+  background-color: rgba(255, 255, 255, 0.1);
+  text-decoration: none !important;
 }
-.nav__link:hover::after {
-  position: absolute;
-  content: "";
-  width: 100%;
-  height: 0.18rem;
-  left: 0;
-  top: 2rem;
-  background-color: var(--first-color);
-}
+/* Underline removed - no longer needed */
 .nav__logo {
   font-size: 35px;
   color: var(--first-color);
@@ -165,15 +170,12 @@ img {
   cursor: pointer;
 }
 
-/*Active menu*/
-.active-link::after {
-  position: absolute;
-  content: "";
-  width: 100%;
-  height: 0.18rem;
-  left: 0;
-  top: 2rem;
-  background-color: var(--first-color);
+/*Active menu - underline removed*/
+.active-link {
+  color: var(--first-color) !important;
+  font-weight: bold;
+  text-decoration: none !important;
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 /*=== Show menu ===*/
@@ -516,9 +518,11 @@ img {
   .nav__list {
     display: flex;
     padding-top: 0;
+    align-items: center;
+    gap: 0.5rem;
   }
   .nav__item {
-    margin-left: var(--mb-6);
+    margin-left: 0;
     margin-bottom: 0;
   }
   .nav__toggle {
@@ -595,6 +599,7 @@ html.dark-mode .nav__link,
 body.dark-mode .nav__logo,
 html.dark-mode .nav__logo {
   color: #ffffff !important;
+  text-decoration: none !important;
 }
 body.dark-mode .footer,
 html.dark-mode .footer {

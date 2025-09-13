@@ -13,6 +13,7 @@ use App\Models\AboutContent;
 use App\Models\Academic;
 use App\Models\ProfileImageSetting;
 use App\Models\AiImage;
+use App\Models\Project;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -54,6 +55,10 @@ class AdminController extends Controller
         return view('admin.edit-academic', compact('academics')); 
     }
     public function editWork() { return view('admin.edit-work'); }
+    public function editProject() { 
+        $projects = Project::getAllOrdered();
+        return view('admin.edit-project', compact('projects')); 
+    }
     public function editImage() { return view('admin.edit-image'); }
     public function editContact() { return view('admin.edit-contact'); }
     public function editFooter() {
@@ -1232,6 +1237,118 @@ class AdminController extends Controller
             }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error fetching AI image: ' . $e->getMessage()]);
+        }
+    }
+
+    // Project Management Methods
+    public function addProject(Request $request)
+    {
+        try {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'image_url' => 'nullable|url|max:500',
+                'project_url' => 'nullable|url|max:500',
+                'github_url' => 'nullable|url|max:500',
+                'technologies' => 'nullable|string|max:1000',
+                'order' => 'required|integer|min:1',
+            ]);
+
+            $project = new Project();
+            $project->title = $request->title;
+            $project->description = $request->description;
+            $project->image_url = $request->image_url;
+            $project->project_url = $request->project_url;
+            $project->github_url = $request->github_url;
+            $project->order = $request->order;
+            $project->is_active = true;
+
+            // Handle technologies
+            if ($request->technologies) {
+                $technologies = array_map('trim', explode(',', $request->technologies));
+                $project->technologies = $technologies;
+            }
+
+            $project->save();
+
+            return response()->json(['success' => true, 'message' => 'Project added successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error adding project: ' . $e->getMessage()]);
+        }
+    }
+
+    public function updateProject(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'image_url' => 'nullable|url|max:500',
+                'project_url' => 'nullable|url|max:500',
+                'github_url' => 'nullable|url|max:500',
+                'technologies' => 'nullable|string|max:1000',
+                'order' => 'required|integer|min:1',
+            ]);
+
+            $project = Project::findOrFail($id);
+            $project->title = $request->title;
+            $project->description = $request->description;
+            $project->image_url = $request->image_url;
+            $project->project_url = $request->project_url;
+            $project->github_url = $request->github_url;
+            $project->order = $request->order;
+
+            // Handle technologies
+            if ($request->technologies) {
+                $technologies = array_map('trim', explode(',', $request->technologies));
+                $project->technologies = $technologies;
+            }
+
+            $project->save();
+
+            return response()->json(['success' => true, 'message' => 'Project updated successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error updating project: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deleteProject($id)
+    {
+        try {
+            $project = Project::findOrFail($id);
+            $project->delete();
+
+            return response()->json(['success' => true, 'message' => 'Project deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error deleting project: ' . $e->getMessage()]);
+        }
+    }
+
+    public function toggleProject($id)
+    {
+        try {
+            $project = Project::findOrFail($id);
+            $project->is_active = !$project->is_active;
+            $project->save();
+
+            $status = $project->is_active ? 'activated' : 'deactivated';
+            return response()->json([
+                'success' => true,
+                'message' => 'Project ' . $status . ' successfully',
+                'is_active' => $project->is_active
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error toggling project: ' . $e->getMessage()]);
+        }
+    }
+
+    public function getProject($id)
+    {
+        try {
+            $project = Project::findOrFail($id);
+            return response()->json($project);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error fetching project: ' . $e->getMessage()]);
         }
     }
 }
