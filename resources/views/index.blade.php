@@ -35,14 +35,18 @@
 
                 <div class="nav__menu" id="nav-menu">
                     <ul class="nav__list">
-                        <li class="nav__item"><a href={{ url('/') }}  class="nav__link active-link">Home</a></li>
-                        <li class="nav__item"><a href={{ url('/about') }} class="nav__link">About</a></li>
-                        <li class="nav__item"><a href={{ url('/skills') }} class="nav__link">Skills</a></li>
-                        <li class="nav__item"><a href={{ url('/achivement') }} class="nav__link">Achivement</a></li>
-                        <li class="nav__item"><a href={{ url('/academic') }} class="nav__link">Academic</a></li>
-                        <li class="nav__item"><a href={{ url('/work') }} class="nav__link">Work</a></li>
-                        <li class="nav__item"><a href={{ url('/Image') }} class="nav__link">Image</a></li>
-                        <li class="nav__item"><a href={{ url('/contact') }} class="nav__link">Contact</a></li>
+                        @php
+                            $currentRoute = request()->route()->getName() ?? request()->path();
+                            $isHome = $currentRoute === 'home' || $currentRoute === '/';
+                        @endphp
+                        <li class="nav__item"><a href={{ url('/') }} class="nav__link {{ $isHome ? 'active-link' : '' }}">Home</a></li>
+                        <li class="nav__item"><a href={{ url('/about') }} class="nav__link {{ request()->is('about') ? 'active-link' : '' }}">About</a></li>
+                        <li class="nav__item"><a href={{ url('/skills') }} class="nav__link {{ request()->is('skills') ? 'active-link' : '' }}">Skills</a></li>
+                        <li class="nav__item"><a href={{ url('/achivement') }} class="nav__link {{ request()->is('achivement') ? 'active-link' : '' }}">Achivement</a></li>
+                        <li class="nav__item"><a href={{ url('/academic') }} class="nav__link {{ request()->is('academic') ? 'active-link' : '' }}">Academic</a></li>
+                        <li class="nav__item"><a href={{ url('/work') }} class="nav__link {{ request()->is('work') ? 'active-link' : '' }}">Work</a></li>
+                        <li class="nav__item"><a href={{ url('/Image') }} class="nav__link {{ request()->is('Image') ? 'active-link' : '' }}">Image</a></li>
+                        <li class="nav__item"><a href={{ url('/contact') }} class="nav__link {{ request()->is('contact') ? 'active-link' : '' }}">Contact</a></li>
                     </ul>
                 </div>
 
