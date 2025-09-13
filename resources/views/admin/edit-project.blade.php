@@ -7,6 +7,7 @@
     <title>Edit Project - Admin Panel</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         /* Global font improvements */
         body {
@@ -261,6 +262,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <form id="addProjectForm">
+                                @csrf
                                 <div class="modal-body">
                                     <div class="row">
                                         <div class="col-md-6">
@@ -327,6 +329,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <form id="editProjectForm">
+                                @csrf
                                 <input type="hidden" id="edit_project_id" name="project_id">
                                 <div class="modal-body">
                                     <div class="row">
@@ -408,6 +411,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function addProject() {
     const formData = new FormData(document.getElementById('addProjectForm'));
     
+    // Show loading state
+    const submitBtn = document.querySelector('#addProjectForm button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Adding...';
+    submitBtn.disabled = true;
+    
     fetch('{{ route("admin.project.add") }}', {
         method: 'POST',
         body: formData,
@@ -415,23 +424,45 @@ function addProject() {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             showAlert('success', data.message);
-            location.reload();
+            // Close modal and reload
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addProjectModal'));
+            modal.hide();
+            setTimeout(() => location.reload(), 1000);
         } else {
-            showAlert('error', data.message);
+            showAlert('error', data.message || 'Failed to add project');
         }
     })
     .catch(error => {
+        console.error('Error adding project:', error);
         showAlert('error', 'Error adding project: ' + error.message);
+    })
+    .finally(() => {
+        // Reset button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     });
 }
 
 function editProject(projectId) {
+    // Show loading state
+    showAlert('info', 'Loading project data...');
+    
     fetch(`{{ url('admin/project') }}/${projectId}`)
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.id) {
             document.getElementById('edit_project_id').value = data.id;
@@ -443,12 +474,17 @@ function editProject(projectId) {
             document.getElementById('edit_order').value = data.order || 1;
             document.getElementById('edit_technologies').value = Array.isArray(data.technologies) ? data.technologies.join(', ') : (data.technologies || '');
             
+            // Clear any existing alerts
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+            
             new bootstrap.Modal(document.getElementById('editProjectModal')).show();
         } else {
-            showAlert('error', 'Error fetching project data');
+            showAlert('error', 'Error fetching project data: ' + (data.message || 'Unknown error'));
         }
     })
     .catch(error => {
+        console.error('Error fetching project:', error);
         showAlert('error', 'Error fetching project: ' + error.message);
     });
 }
@@ -457,6 +493,12 @@ function updateProject() {
     const formData = new FormData(document.getElementById('editProjectForm'));
     const projectId = document.getElementById('edit_project_id').value;
     
+    // Show loading state
+    const submitBtn = document.querySelector('#editProjectForm button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
+    submitBtn.disabled = true;
+    
     fetch(`{{ url('admin/project') }}/${projectId}/update`, {
         method: 'POST',
         body: formData,
@@ -464,17 +506,31 @@ function updateProject() {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             showAlert('success', data.message);
-            location.reload();
+            // Close modal and reload
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editProjectModal'));
+            modal.hide();
+            setTimeout(() => location.reload(), 1000);
         } else {
-            showAlert('error', data.message);
+            showAlert('error', data.message || 'Failed to update project');
         }
     })
     .catch(error => {
+        console.error('Error updating project:', error);
         showAlert('error', 'Error updating project: ' + error.message);
+    })
+    .finally(() => {
+        // Reset button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     });
 }
 
@@ -525,10 +581,34 @@ function toggleProject(projectId) {
 }
 
 function showAlert(type, message) {
-    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    let alertClass;
+    let iconClass;
+    
+    switch(type) {
+        case 'success':
+            alertClass = 'alert-success';
+            iconClass = 'fas fa-check-circle';
+            break;
+        case 'error':
+            alertClass = 'alert-danger';
+            iconClass = 'fas fa-exclamation-circle';
+            break;
+        case 'info':
+            alertClass = 'alert-info';
+            iconClass = 'fas fa-info-circle';
+            break;
+        case 'warning':
+            alertClass = 'alert-warning';
+            iconClass = 'fas fa-exclamation-triangle';
+            break;
+        default:
+            alertClass = 'alert-info';
+            iconClass = 'fas fa-info-circle';
+    }
+    
     const alertHtml = `
         <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-            ${message}
+            <i class="${iconClass} me-2"></i>${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `;
@@ -541,13 +621,15 @@ function showAlert(type, message) {
     const container = document.querySelector('.main-content .p-4');
     container.insertAdjacentHTML('afterbegin', alertHtml);
     
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-        const alert = document.querySelector('.alert');
-        if (alert) {
-            alert.remove();
-        }
-    }, 5000);
+    // Auto-dismiss after 5 seconds (except for info alerts)
+    if (type !== 'info') {
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) {
+                alert.remove();
+            }
+        }, 5000);
+    }
 }
 </script>
     </div>

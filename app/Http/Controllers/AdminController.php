@@ -59,7 +59,11 @@ class AdminController extends Controller
         $projects = Project::getAllOrdered();
         return view('admin.edit-project', compact('projects')); 
     }
-    public function editImage() { return view('admin.edit-image'); }
+    public function editImage() 
+    { 
+        $aiImage = \App\Models\AiImage::getActiveImageForPage('skills');
+        return view('admin.edit-image', compact('aiImage')); 
+    }
     public function editContact() { return view('admin.edit-contact'); }
     public function editFooter() {
         $footer = Footer::getActive();

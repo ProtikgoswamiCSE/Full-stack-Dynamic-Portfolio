@@ -16,20 +16,18 @@
     <div class="project-cards">
         <div class="card-container">
             @forelse($projects as $project)
-                <div class="card {{ $loop->index % 3 === 1 ? 'large' : 'medium' }}">
-                    @if($project->image_url)
-                        <img src="{{ $project->image_url }}" alt="{{ $project->title }}">
-                    @else
-                        <div class="project-placeholder">
-                            <i class="fas fa-code"></i>
-                            <h4>{{ $project->title }}</h4>
-                        </div>
-                    @endif
-                    <div class="project-overlay">
-                        <h3>{{ $project->title }}</h3>
-                        @if($project->description)
-                            <p>{{ Str::limit($project->description, 100) }}</p>
+                <div class="card uniform-card">
+                    <div class="card-image">
+                        @if($project->image_url)
+                            <img src="{{ $project->image_url }}" alt="{{ $project->title }}">
+                        @else
+                            <div class="project-placeholder">
+                                <i class="fas fa-code"></i>
+                            </div>
                         @endif
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">{{ $project->title }}</h3>
                         @if($project->technologies && is_array($project->technologies))
                             <div class="project-tech">
                                 @foreach($project->technologies as $tech)
@@ -44,15 +42,31 @@
                                 </a>
                             @endif
                             @if($project->github_url)
-                                <a href="{{ $project->github_url }}" target="_blank" class="btn btn-outline-light btn-sm">
+                                <a href="{{ $project->github_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
                                     <i class="fab fa-github"></i> GitHub
                                 </a>
                             @endif
                         </div>
                     </div>
+                    <!-- Hover overlay with full description -->
+                    <div class="project-overlay">
+                        <div class="overlay-content">
+                            <h3>{{ $project->title }}</h3>
+                            @if($project->description)
+                                <p class="full-description">{{ $project->description }}</p>
+                            @endif
+                            @if($project->technologies && is_array($project->technologies))
+                                <div class="project-tech">
+                                    @foreach($project->technologies as $tech)
+                                        <span class="tech-tag">{{ $tech }}</span>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             @empty
-                <div class="card medium blank-card">
+                <div class="card uniform-card blank-card">
                     <div class="blank-content">
                         <i class="fas fa-plus-circle"></i>
                         <p>No projects yet. Add some projects from the admin panel!</p>
@@ -67,136 +81,239 @@
 <section class="work section" id="work-2">
     <h2 class="section-title">🌟 More Projects</h2>
     <div class="project-cards">
-        @foreach($projects->skip(3) as $project)
-            <div class="card medium">
-                @if($project->image_url)
-                    <img src="{{ $project->image_url }}" alt="{{ $project->title }}">
-                @else
-                    <div class="project-placeholder">
-                        <i class="fas fa-code"></i>
-                        <h4>{{ $project->title }}</h4>
+        <div class="card-container">
+            @foreach($projects->skip(3) as $project)
+                <div class="card uniform-card">
+                    <div class="card-image">
+                        @if($project->image_url)
+                            <img src="{{ $project->image_url }}" alt="{{ $project->title }}">
+                        @else
+                            <div class="project-placeholder">
+                                <i class="fas fa-code"></i>
+                            </div>
+                        @endif
                     </div>
-                @endif
-                <div class="project-overlay">
-                    <h3>{{ $project->title }}</h3>
-                    @if($project->description)
-                        <p>{{ Str::limit($project->description, 100) }}</p>
-                    @endif
-                    @if($project->technologies && is_array($project->technologies))
-                        <div class="project-tech">
-                            @foreach($project->technologies as $tech)
-                                <span class="tech-tag">{{ $tech }}</span>
-                            @endforeach
+                    <div class="card-content">
+                        <h3 class="card-title">{{ $project->title }}</h3>
+                        @if($project->technologies && is_array($project->technologies))
+                            <div class="project-tech">
+                                @foreach($project->technologies as $tech)
+                                    <span class="tech-tag">{{ $tech }}</span>
+                                @endforeach
+                            </div>
+                        @endif
+                        <div class="project-links">
+                            @if($project->project_url)
+                                <a href="{{ $project->project_url }}" target="_blank" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-external-link-alt"></i> View Project
+                                </a>
+                            @endif
+                            @if($project->github_url)
+                                <a href="{{ $project->github_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i class="fab fa-github"></i> GitHub
+                                </a>
+                            @endif
                         </div>
-                    @endif
-                    <div class="project-links">
-                        @if($project->project_url)
-                            <a href="{{ $project->project_url }}" target="_blank" class="btn btn-primary btn-sm">
-                                <i class="fas fa-external-link-alt"></i> View Project
-                            </a>
-                        @endif
-                        @if($project->github_url)
-                            <a href="{{ $project->github_url }}" target="_blank" class="btn btn-outline-light btn-sm">
-                                <i class="fab fa-github"></i> GitHub
-                            </a>
-                        @endif
+                    </div>
+                    <!-- Hover overlay with full description -->
+                    <div class="project-overlay">
+                        <div class="overlay-content">
+                            <h3>{{ $project->title }}</h3>
+                            @if($project->description)
+                                <p class="full-description">{{ $project->description }}</p>
+                            @endif
+                            @if($project->technologies && is_array($project->technologies))
+                                <div class="project-tech">
+                                    @foreach($project->technologies as $tech)
+                                        <span class="tech-tag">{{ $tech }}</span>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
-            </div>
-        @endforeach
+            @endforeach
+        </div>
     </div>
 </section>
 @endif
 
 <style>
-.project-placeholder {
+/* Uniform Card Styles */
+.uniform-card {
+    width: 350px;
+    height: 400px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.10);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
     display: flex;
     flex-direction: column;
+}
+
+.uniform-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+}
+
+/* Card Image Section */
+.card-image {
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.uniform-card:hover .card-image img {
+    transform: scale(1.05);
+}
+
+/* Card Content Section */
+.card-content {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    color: #333;
+    line-height: 1.3;
+}
+
+/* Project Placeholder */
+.project-placeholder {
+    display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    text-align: center;
-    padding: 20px;
 }
 
 .project-placeholder i {
     font-size: 3rem;
-    margin-bottom: 1rem;
     opacity: 0.8;
 }
 
-.project-placeholder h4 {
-    margin: 0;
-    font-size: 1.2rem;
+/* Technology Tags */
+.project-tech {
+    margin: 10px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 
+.tech-tag {
+    display: inline-block;
+    background: #f0f0f0;
+    color: #666;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Project Links */
+.project-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: auto;
+}
+
+.project-links .btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.project-links .btn-primary {
+    background: #667eea;
+    border: none;
+    color: white;
+}
+
+.project-links .btn-outline-primary {
+    border: 1px solid #667eea;
+    color: #667eea;
+    background: transparent;
+}
+
+.project-links .btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Hover Overlay with Full Description */
 .project-overlay {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.9);
     color: white;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    text-align: center;
-    padding: 20px;
+    justify-content: center;
     opacity: 0;
     transition: opacity 0.3s ease;
+    padding: 20px;
 }
 
-.card:hover .project-overlay {
+.uniform-card:hover .project-overlay {
     opacity: 1;
 }
 
-.project-overlay h3 {
-    margin-bottom: 10px;
-    font-size: 1.3rem;
+.overlay-content {
+    text-align: center;
+    max-height: 100%;
+    overflow-y: auto;
 }
 
-.project-overlay p {
+.overlay-content h3 {
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.full-description {
     margin-bottom: 15px;
     font-size: 0.9rem;
-    line-height: 1.4;
+    line-height: 1.5;
+    color: #e0e0e0;
 }
 
-.project-tech {
-    margin-bottom: 15px;
-}
-
-.tech-tag {
-    display: inline-block;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 4px 8px;
-    margin: 2px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-}
-
-.project-links {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+.overlay-content .project-tech {
     justify-content: center;
 }
 
-.project-links .btn {
-    font-size: 0.8rem;
-    padding: 5px 10px;
+.overlay-content .tech-tag {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
 }
 
+/* Blank Card */
 .blank-card {
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     border: 2px dashed #ccc;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 200px;
 }
 
 .blank-content {
@@ -213,6 +330,56 @@
 .blank-content p {
     font-size: 1.1rem;
     margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .uniform-card {
+        width: 300px;
+        height: 380px;
+    }
+}
+
+@media (max-width: 900px) {
+    .uniform-card {
+        width: 280px;
+        height: 360px;
+    }
+    
+    .card-image {
+        height: 180px;
+    }
+}
+
+@media (max-width: 600px) {
+    .card-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .uniform-card {
+        width: 90vw;
+        max-width: 350px;
+        height: 400px;
+    }
+}
+
+/* Dark mode support */
+body.dark-mode .uniform-card,
+html.dark-mode .uniform-card {
+    background: #23272b !important;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.32);
+}
+
+body.dark-mode .card-title,
+html.dark-mode .card-title {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .tech-tag,
+html.dark-mode .tech-tag {
+    background: #3a3a3a !important;
+    color: #e0e0e0 !important;
 }
 </style>
 @endsection
