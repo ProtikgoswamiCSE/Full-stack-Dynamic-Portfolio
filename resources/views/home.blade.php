@@ -10,7 +10,7 @@
         @if($animEnabled)
         <style>
         .bee-overlay{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.8}
-        .l-header,.bd-grid,.footer,.home__data,.home__social{position:relative;z-index:2}
+        .bd-grid,.footer,.home__data,.home__social{position:relative;z-index:2}
         .home__img{z-index:2}
         </style>
         <canvas id="bee-canvas" class="bee-overlay"></canvas>
