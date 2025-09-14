@@ -25,6 +25,13 @@ Route::get('/work', function () {
     return view('work');
 });
 
+// Public Work Management Routes (no authentication required)
+Route::post('/work/add', [AdminController::class, 'addWork'])->name('work.add');
+Route::post('/work/{id}/update', [AdminController::class, 'updateWork'])->name('work.update');
+Route::post('/work/{id}/delete', [AdminController::class, 'deleteWork'])->name('work.delete');
+Route::post('/work/{id}/toggle', [AdminController::class, 'toggleWork'])->name('work.toggle');
+Route::get('/work/{id}', [AdminController::class, 'getWork'])->name('work.get');
+
 Route::get('/project', function () {
     return view('project');
 });
@@ -166,6 +173,13 @@ Route::prefix('admin')->middleware(['admin.auth', 'web'])->group(function () {
     Route::post('/project/{id}/delete', [AdminController::class, 'deleteProject'])->name('admin.project.delete');
     Route::post('/project/{id}/toggle', [AdminController::class, 'toggleProject'])->name('admin.project.toggle');
     Route::get('/project/{id}', [AdminController::class, 'getProject'])->name('admin.project.get');
+    
+    // Work Management
+    Route::post('/work/add', [AdminController::class, 'addWork'])->name('admin.work.add');
+    Route::post('/work/{id}/update', [AdminController::class, 'updateWork'])->name('admin.work.update');
+    Route::post('/work/{id}/delete', [AdminController::class, 'deleteWork'])->name('admin.work.delete');
+    Route::post('/work/{id}/toggle', [AdminController::class, 'toggleWork'])->name('admin.work.toggle');
+    Route::get('/work/{id}', [AdminController::class, 'getWork'])->name('admin.work.get');
     
     // Data Management Routes
     Route::get('/data-management', [AdminController::class, 'dataManagement'])->name('admin.data-management');

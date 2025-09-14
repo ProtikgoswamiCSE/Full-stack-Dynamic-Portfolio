@@ -14,6 +14,7 @@ use App\Models\Academic;
 use App\Models\ProfileImageSetting;
 use App\Models\AiImage;
 use App\Models\Project;
+use App\Models\Work;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -54,7 +55,10 @@ class AdminController extends Controller
         $academics = Academic::getAllOrdered();
         return view('admin.edit-academic', compact('academics')); 
     }
-    public function editWork() { return view('admin.edit-work'); }
+    public function editWork() { 
+        $works = Work::getAllOrdered();
+        return view('admin.edit-work', compact('works')); 
+    }
     public function editProject() { 
         $projects = Project::getAllOrdered();
         return view('admin.edit-project', compact('projects')); 
@@ -1353,6 +1357,134 @@ class AdminController extends Controller
             return response()->json($project);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error fetching project: ' . $e->getMessage()]);
+        }
+    }
+
+    // Work Management Methods
+    public function addWork(Request $request)
+    {
+        try {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'company_name' => 'nullable|string|max:255',
+                'position' => 'nullable|string|max:255',
+                'image_url' => 'nullable|url|max:500',
+                'work_url' => 'nullable|url|max:500',
+                'start_date' => 'nullable|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
+                'is_current' => 'boolean',
+                'technologies' => 'nullable|string|max:1000',
+                'order' => 'required|integer|min:1',
+            ]);
+
+            $work = new Work();
+            $work->title = $request->title;
+            $work->description = $request->description;
+            $work->company_name = $request->company_name;
+            $work->position = $request->position;
+            $work->image_url = $request->image_url;
+            $work->work_url = $request->work_url;
+            $work->start_date = $request->start_date;
+            $work->end_date = $request->end_date;
+            $work->is_current = $request->has('is_current');
+            $work->order = $request->order;
+            $work->is_active = true;
+
+            // Handle technologies
+            if ($request->technologies) {
+                $technologies = array_map('trim', explode(',', $request->technologies));
+                $work->technologies = $technologies;
+            }
+
+            $work->save();
+
+            return response()->json(['success' => true, 'message' => 'Work experience added successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error adding work experience: ' . $e->getMessage()]);
+        }
+    }
+
+    public function updateWork(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'company_name' => 'nullable|string|max:255',
+                'position' => 'nullable|string|max:255',
+                'image_url' => 'nullable|url|max:500',
+                'work_url' => 'nullable|url|max:500',
+                'start_date' => 'nullable|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
+                'is_current' => 'boolean',
+                'technologies' => 'nullable|string|max:1000',
+                'order' => 'required|integer|min:1',
+            ]);
+
+            $work = Work::findOrFail($id);
+            $work->title = $request->title;
+            $work->description = $request->description;
+            $work->company_name = $request->company_name;
+            $work->position = $request->position;
+            $work->image_url = $request->image_url;
+            $work->work_url = $request->work_url;
+            $work->start_date = $request->start_date;
+            $work->end_date = $request->end_date;
+            $work->is_current = $request->has('is_current');
+            $work->order = $request->order;
+
+            // Handle technologies
+            if ($request->technologies) {
+                $technologies = array_map('trim', explode(',', $request->technologies));
+                $work->technologies = $technologies;
+            }
+
+            $work->save();
+
+            return response()->json(['success' => true, 'message' => 'Work experience updated successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error updating work experience: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deleteWork($id)
+    {
+        try {
+            $work = Work::findOrFail($id);
+            $work->delete();
+
+            return response()->json(['success' => true, 'message' => 'Work experience deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error deleting work experience: ' . $e->getMessage()]);
+        }
+    }
+
+    public function toggleWork($id)
+    {
+        try {
+            $work = Work::findOrFail($id);
+            $work->is_active = !$work->is_active;
+            $work->save();
+
+            $status = $work->is_active ? 'activated' : 'deactivated';
+            return response()->json([
+                'success' => true,
+                'message' => 'Work experience ' . $status . ' successfully',
+                'is_active' => $work->is_active
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error toggling work experience: ' . $e->getMessage()]);
+        }
+    }
+
+    public function getWork($id)
+    {
+        try {
+            $work = Work::findOrFail($id);
+            return response()->json($work);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error fetching work experience: ' . $e->getMessage()]);
         }
     }
 }
