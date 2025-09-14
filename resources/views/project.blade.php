@@ -62,6 +62,19 @@
                                     @endforeach
                                 </div>
                             @endif
+                            <!-- Links in overlay -->
+                            <div class="overlay-links">
+                                @if($project->project_url)
+                                    <a href="{{ $project->project_url }}" target="_blank" class="btn btn-primary btn-sm overlay-btn">
+                                        <i class="fas fa-external-link-alt"></i> View Project
+                                    </a>
+                                @endif
+                                @if($project->github_url)
+                                    <a href="{{ $project->github_url }}" target="_blank" class="btn btn-outline-primary btn-sm overlay-btn">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -129,6 +142,19 @@
                                     @endforeach
                                 </div>
                             @endif
+                            <!-- Links in overlay -->
+                            <div class="overlay-links">
+                                @if($project->project_url)
+                                    <a href="{{ $project->project_url }}" target="_blank" class="btn btn-primary btn-sm overlay-btn">
+                                        <i class="fas fa-external-link-alt"></i> View Project
+                                    </a>
+                                @endif
+                                @if($project->github_url)
+                                    <a href="{{ $project->github_url }}" target="_blank" class="btn btn-outline-primary btn-sm overlay-btn">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -154,8 +180,9 @@
 }
 
 .uniform-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    border: 2px solid rgba(102, 126, 234, 0.3);
 }
 
 /* Card Image Section */
@@ -173,7 +200,8 @@
 }
 
 .uniform-card:hover .card-image img {
-    transform: scale(1.05);
+    transform: scale(1.1);
+    filter: brightness(1.1);
 }
 
 /* Card Content Section */
@@ -273,10 +301,12 @@
     opacity: 0;
     transition: opacity 0.3s ease;
     padding: 20px;
+    pointer-events: none; /* Allow clicks to pass through initially */
 }
 
 .uniform-card:hover .project-overlay {
     opacity: 1;
+    pointer-events: auto; /* Enable clicks when visible */
 }
 
 .overlay-content {
@@ -300,11 +330,62 @@
 
 .overlay-content .project-tech {
     justify-content: center;
+    margin-bottom: 20px;
 }
 
 .overlay-content .tech-tag {
     background: rgba(255, 255, 255, 0.2);
     color: white;
+}
+
+/* Overlay Links */
+.overlay-links {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.overlay-btn {
+    font-size: 0.8rem;
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    z-index: 10;
+    position: relative;
+}
+
+.overlay-btn.btn-primary {
+    background: #667eea;
+    border: none;
+    color: white;
+}
+
+.overlay-btn.btn-outline-primary {
+    border: 1px solid #667eea;
+    color: #667eea;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.overlay-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.overlay-btn.btn-primary:hover {
+    background: #5a6fd8;
+    color: white;
+}
+
+.overlay-btn.btn-outline-primary:hover {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
 }
 
 /* Blank Card */
