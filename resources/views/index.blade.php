@@ -45,7 +45,7 @@
             min-width: 160px;
             padding: 5px 0;
             margin: 2px 0 0;
-            background-color: #fff;
+            background-color: #2CCB92;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-shadow: 0 6px 12px rgba(0,0,0,.175);

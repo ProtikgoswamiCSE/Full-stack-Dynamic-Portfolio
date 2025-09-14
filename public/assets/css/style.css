@@ -625,7 +625,7 @@ html.dark-mode a {
   color: #ffffff !important;
 }
 
-/* Force all key text elements to white in dark mode */
+/* Force all key text elements to soft white in dark mode */
 body.dark-mode h1,
 html.dark-mode h1,
 body.dark-mode h2,

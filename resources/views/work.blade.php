@@ -11,19 +11,19 @@
     <h2 class="section-title">💼 My Work</h2>
     <div class="project-cards">
         <div class="card-container">
-        <div class="card medium blank-card">
+        <div class="card uniform-card blank-card">
             <div class="blank-content">
                 <i class="fas fa-plus-circle"></i>
                 <p>Add Work Item</p>
             </div>
         </div>  
-        <div class="card large blank-card">
+        <div class="card uniform-card blank-card">
             <div class="blank-content">
                 <i class="fas fa-plus-circle"></i>
                 <p>Add Work Item</p>
             </div>
         </div>
-        <div class="card medium blank-card">
+        <div class="card uniform-card blank-card">
             <div class="blank-content">
                 <i class="fas fa-plus-circle"></i>
                 <p>Add Work Item</p>
