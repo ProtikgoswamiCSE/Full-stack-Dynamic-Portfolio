@@ -50,12 +50,6 @@
                                     <i class="fas fa-external-link-alt"></i> View Work
                                 </a>
                             @endif
-                            <button class="btn btn-outline-primary btn-sm edit-work-btn" onclick="editWork({{ $work->id }})">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm delete-work-btn" onclick="deleteWork({{ $work->id }})">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
                         </div>
                     </div>
                     <!-- Hover overlay with full description -->
@@ -88,12 +82,6 @@
                                         <i class="fas fa-external-link-alt"></i> View Work
                                     </a>
                                 @endif
-                                <button class="btn btn-outline-primary btn-sm overlay-btn edit-work-btn" onclick="editWork({{ $work->id }})">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
-                                <button class="btn btn-outline-danger btn-sm overlay-btn delete-work-btn" onclick="deleteWork({{ $work->id }})">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -721,6 +709,7 @@ function deleteWork(workId) {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Content-Type': 'application/json'
             }
+
         })
         .then(response => response.json())
         .then(data => {
@@ -787,4 +776,5 @@ function showAlert(type, message) {
         }, 5000);
     }
 }
+</script>
 </script>

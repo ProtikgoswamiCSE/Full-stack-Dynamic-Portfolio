@@ -127,7 +127,7 @@ function hexToRgb(hex) {
 }
 
 // Auto-refresh profile settings every 30 seconds
-setInterval(refreshProfileSettings, 30000);
+// setInterval(refreshProfileSettings, 30000);
 
 // Add keyboard shortcut to manually refresh (Ctrl+R)
 document.addEventListener('keydown', function(e) {

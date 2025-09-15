@@ -489,6 +489,7 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     'Content-Type': 'application/json'
                 }
+
             })
             .then(response => response.json())
             .then(data => {
@@ -512,6 +513,7 @@
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Content-Type': 'application/json'
             }
+
         })
         .then(response => response.json())
         .then(data => {
@@ -565,7 +567,7 @@
         existingAlerts.forEach(alert => alert.remove());
         
         // Add new alert
-        const container = document.querySelector('.main-content .p-4');
+        const container = document.querySelector('.main-content.p-4') || document.querySelector('.main-content') || document.body;
         container.insertAdjacentHTML('afterbegin', alertHtml);
         
         // Auto-dismiss after 5 seconds (except for info alerts)
@@ -580,4 +582,6 @@
     }
     </script>
 </body>
+</html>
+
 </html>
