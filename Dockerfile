@@ -71,6 +71,9 @@ RUN sed -i 's#^listen = .*#listen = 127.0.0.1:9000#' /etc/php82/php-fpm.d/www.co
 RUN chown -R nginx:nginx /var/www/html && \
     chmod -R 755 /var/www/html
 
+# Create symlink for php command
+RUN ln -s /usr/bin/php82 /usr/bin/php
+
 # Create startup script
 RUN echo '#!/bin/sh' > /start.sh && \
     echo 'set -e' >> /start.sh && \
