@@ -9,17 +9,21 @@ RUN apt-get update \
     && docker-php-ext-install pdo pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Composer
+// Install Composer
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
 # Copy composer files first for better caching
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader || true
+# Avoid running Composer scripts before the full app (and artisan) exist
+ENV COMPOSER_ALLOW_SUPERUSER=1
+RUN composer install --no-dev --no-interaction --no-scripts --prefer-dist --optimize-autoloader || true
 
 # Copy the app
 COPY . .
+# Now run full install with scripts enabled (service provider discovery, etc.)
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader || true
 
 # Ensure storage and bootstrap cache are writable
 RUN chown -R www-data:www-data storage bootstrap/cache \
@@ -56,9 +60,12 @@ COPY --from=php /var/www/html /var/www/html
 # Copy nginx configuration
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
-# Create nginx user and set permissions
-RUN addgroup -g 1001 -S nginx && \
-    adduser -S -D -H -u 1001 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
+# Configure PHP-FPM to listen on TCP for nginx
+RUN sed -i 's#^listen = .*#listen = 127.0.0.1:9000#' /etc/php82/php-fpm.d/www.conf \
+    && sed -i 's#^user = .*#user = nginx#' /etc/php82/php-fpm.d/www.conf \
+    && sed -i 's#^group = .*#group = nginx#' /etc/php82/php-fpm.d/www.conf
+
+# Nginx user already exists in the base image; just ensure permissions
 
 # Set proper permissions
 RUN chown -R nginx:nginx /var/www/html && \
