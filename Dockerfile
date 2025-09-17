@@ -70,7 +70,9 @@ RUN sed -i 's#^listen = .*#listen = 127.0.0.1:9000#' /etc/php82/php-fpm.d/www.co
 
 # Set proper permissions
 RUN chown -R nginx:nginx /var/www/html && \
-    chmod -R 755 /var/www/html
+    chmod -R 755 /var/www/html && \
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chmod 664 /var/www/html/database/database.sqlite
 
 # Create symlink for php command
 RUN ln -s /usr/bin/php82 /usr/bin/php
@@ -114,8 +116,12 @@ RUN echo '#!/bin/sh' > /start.sh && \
     echo '' >> /start.sh && \
     echo '# Ensure storage directories exist and are writable' >> /start.sh && \
     echo 'mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views' >> /start.sh && \
-    echo 'chown -R nginx:nginx storage bootstrap/cache' >> /start.sh && \
+    echo 'chown -R nginx:nginx storage bootstrap/cache database' >> /start.sh && \
     echo 'chmod -R 775 storage bootstrap/cache' >> /start.sh && \
+    echo 'chmod 664 database/database.sqlite' >> /start.sh && \
+    echo 'touch storage/logs/laravel.log' >> /start.sh && \
+    echo 'chown nginx:nginx storage/logs/laravel.log' >> /start.sh && \
+    echo 'chmod 664 storage/logs/laravel.log' >> /start.sh && \
     echo '' >> /start.sh && \
     echo '# Run database migrations' >> /start.sh && \
     echo 'php artisan migrate --force || echo "Migration failed, continuing..."' >> /start.sh && \
