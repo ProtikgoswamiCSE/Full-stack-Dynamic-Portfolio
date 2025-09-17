@@ -114,3 +114,18 @@ php artisan storage:link
 php artisan config:clear
 php artisan cache:clear
 php artisan migrate
+
+# ========================================
+# 8. RUN WITH DOCKER (OPTIONAL)
+# ========================================
+# Prerequisites: Docker Desktop running
+# 1) Ensure SQLite file exists
+#    - PowerShell: if (!(Test-Path "database/database.sqlite")) { New-Item -ItemType File database/database.sqlite | Out-Null }
+# 2) Build and start
+#    docker compose up -d --build
+# 3) Install dependencies (first run only)
+#    docker compose exec app composer install
+#    docker compose exec app php artisan key:generate
+#    docker compose exec app php artisan migrate --seed
+# 4) Open site
+#    http://localhost:8080
