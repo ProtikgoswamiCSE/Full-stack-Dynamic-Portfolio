@@ -1,11 +1,13 @@
 # Multi-stage build for Laravel app with nginx
 FROM php:8.2-fpm as php
 
-# Install system dependencies
+# Install system dependencies including Node.js
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        git unzip libpng-dev libonig-dev libxml2-dev libzip-dev \
-       libsqlite3-dev sqlite3 \
+       libsqlite3-dev sqlite3 curl \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
     && docker-php-ext-install pdo pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip \
     && rm -rf /var/lib/apt/lists/*
 
@@ -18,12 +20,16 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 # Avoid running Composer scripts before the full app (and artisan) exist
 ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN composer install --no-dev --no-interaction --no-scripts --prefer-dist --optimize-autoloader || true
+RUN composer install --no-dev --no-interaction --no-scripts --prefer-dist --optimize-autoloader
+
+# Copy package.json and install Node dependencies
+COPY package.json package-lock.json ./
+RUN npm install && npm run build
 
 # Copy the app
 COPY . .
 # Now run full install with scripts enabled (service provider discovery, etc.)
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader || true
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # Ensure storage and bootstrap cache are writable
 RUN chown -R www-data:www-data storage bootstrap/cache \
@@ -32,7 +38,7 @@ RUN chown -R www-data:www-data storage bootstrap/cache \
 # Final stage with nginx
 FROM nginx:1.27-alpine
 
-# Install PHP-FPM and required extensions
+# Install PHP-FPM, Node.js and required extensions
 RUN apk add --no-cache \
     php82 \
     php82-fpm \
@@ -53,7 +59,9 @@ RUN apk add --no-cache \
     php82-curl \
     php82-opcache \
     php82-intl \
-    php82-simplexml
+    php82-simplexml \
+    nodejs \
+    npm
 
 # Copy PHP application from previous stage
 COPY --from=php /var/www/html /var/www/html
@@ -113,6 +121,12 @@ RUN echo '#!/bin/sh' > /start.sh && \
     echo '' >> /start.sh && \
     echo '# Run Laravel setup and optimizations' >> /start.sh && \
     echo 'cd /var/www/html' >> /start.sh && \
+    echo '' >> /start.sh && \
+    echo '# Build assets if not already built' >> /start.sh && \
+    echo 'if [ ! -d "public/build" ]; then' >> /start.sh && \
+    echo '    echo "Building assets..."' >> /start.sh && \
+    echo '    npm install && npm run build' >> /start.sh && \
+    echo 'fi' >> /start.sh && \
     echo '' >> /start.sh && \
     echo '# Ensure storage directories exist and are writable' >> /start.sh && \
     echo 'mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views' >> /start.sh && \
