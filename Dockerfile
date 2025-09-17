@@ -32,7 +32,7 @@ RUN chown -R www-data:www-data storage bootstrap/cache \
 # Final stage with nginx
 FROM nginx:1.27-alpine
 
-# Install PHP-FPM
+# Install PHP-FPM and required extensions
 RUN apk add --no-cache \
     php82 \
     php82-fpm \
@@ -40,6 +40,7 @@ RUN apk add --no-cache \
     php82-pdo_sqlite \
     php82-mbstring \
     php82-xml \
+    php82-dom \
     php82-json \
     php82-openssl \
     php82-tokenizer \
@@ -49,10 +50,10 @@ RUN apk add --no-cache \
     php82-gd \
     php82-zip \
     php82-session \
-    php82-tokenizer \
-    php82-json \
     php82-curl \
-    php82-opcache
+    php82-opcache \
+    php82-intl \
+    php82-simplexml
 
 # Copy PHP application from previous stage
 COPY --from=php /var/www/html /var/www/html
