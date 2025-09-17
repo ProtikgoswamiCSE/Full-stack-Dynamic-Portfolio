@@ -67,9 +67,72 @@
                         <h2>Edit Contact</h2>
                         <a href="{{ route('admin.edit-home') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back</a>
                     </div>
-                    <div class="card">
+                    <div class="card mb-4">
                         <div class="card-body">
-                            <p class="text-muted mb-0">Contact page editor coming soon.</p>
+                            <h5 class="card-title mb-3"><i class="fas fa-inbox me-2"></i>Contact Messages</h5>
+                            @if(session('success'))
+                                <div class="alert alert-success">{{ session('success') }}</div>
+                            @endif
+                            @if(session('error'))
+                                <div class="alert alert-danger">{{ session('error') }}</div>
+                            @endif
+                            @if(isset($messages) && count($messages))
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <input type="checkbox" id="selectAll" class="form-check-input me-2">
+                                        <label for="selectAll" class="form-check-label">Select All</label>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" id="deleteSelectedBtn" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash-alt me-1"></i> Delete Selected
+                                        </button>
+                                        <form action="{{ route('admin.contact.delete-all') }}" method="POST" onsubmit="return confirm('Delete ALL messages?')" class="m-0 p-0">
+                                            @csrf
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="fas fa-trash me-1"></i> Delete All
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-striped align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>Name</th>
+                                                <th>Email</th>
+                                                <th>Message</th>
+                                                <th>Received At</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($messages as $msg)
+                                                <tr>
+                                                    <td>
+                                                        <input type="checkbox" value="{{ $msg->id }}" class="selectItem form-check-input">
+                                                    </td>
+                                                    <td>{{ $msg->name }}</td>
+                                                    <td><a href="mailto:{{ $msg->email }}">{{ $msg->email }}</a></td>
+                                                    <td style="max-width:480px; white-space:pre-wrap;">{{ $msg->message }}</td>
+                                                    <td>{{ $msg->created_at->timezone(config('app.timezone'))->format('Y-m-d h:i A') }}</td>
+                                                    <td>
+                                                        <form action="{{ route('admin.contact.delete', $msg->id) }}" method="POST" onsubmit="return confirm('Delete this message?')" class="m-0 p-0">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <form id="bulkDeleteForm" action="{{ route('admin.contact.bulk-delete') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
+                            @else
+                                <p class="text-muted mb-0">No messages yet.</p>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -77,5 +140,39 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function(){
+            const selectAll = document.getElementById('selectAll');
+            const items = document.querySelectorAll('.selectItem');
+            const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+            const bulkForm = document.getElementById('bulkDeleteForm');
+            if (selectAll) {
+                selectAll.addEventListener('change', function(){
+                    items.forEach(cb => cb.checked = selectAll.checked);
+                });
+            }
+            if (deleteSelectedBtn && bulkForm) {
+                deleteSelectedBtn.addEventListener('click', function(){
+                    const checked = Array.from(document.querySelectorAll('.selectItem:checked'));
+                    if (checked.length === 0) {
+                        alert('Please select at least one message.');
+                        return;
+                    }
+                    if (!confirm('Delete selected messages?')) return;
+                    // Clear previous hidden inputs
+                    bulkForm.querySelectorAll('input[name="ids[]"]').forEach(n => n.remove());
+                    // Append selected IDs
+                    checked.forEach(cb => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = cb.value;
+                        bulkForm.appendChild(input);
+                    });
+                    bulkForm.submit();
+                });
+            }
+        })();
+    </script>
 </body>
 </html>

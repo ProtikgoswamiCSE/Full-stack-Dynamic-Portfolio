@@ -383,6 +383,17 @@ img {
 .work__img img:hover {
   transform: none;
 }
+.work__item {
+  display: flex;
+  flex-direction: column;
+}
+.work__caption {
+  margin-top: 0.5rem;
+  font-size: var(--smaller-font-size);
+  color: var(--text-color);
+  text-align: center;
+  font-style: italic;
+}
 
 /* ===== CONTACT =====*/
 .contact__input {

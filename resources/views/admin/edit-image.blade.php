@@ -129,6 +129,39 @@
                         </div>
                     </div>
 
+                    <!-- Gallery Images Management -->
+                    <div class="card mt-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-photo-film me-2"></i>Gallery Images (Image page)</h5>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addGalleryImageModal">
+                                <i class="fas fa-plus me-2"></i>Add Image
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                @foreach(($galleryImages ?? []) as $g)
+                                    <div class="col-md-4">
+                                        <div class="card h-100">
+                                            <img src="{{ asset('storage/' . $g->image_path) }}" class="card-img-top" alt="{{ $g->alt_text }}" style="height:220px; object-fit:cover">
+                                            <div class="card-body">
+                                                <p class="mb-1"><strong>Alt:</strong> {{ $g->alt_text ?? '—' }}</p>
+                                                <p class="mb-1"><strong>Order:</strong> {{ $g->order }}</p>
+                                                <p class="mb-2"><strong>Status:</strong> <span class="badge {{ $g->is_active?'bg-success':'bg-secondary' }}">{{ $g->is_active?'Active':'Hidden' }}</span></p>
+                                                <div class="d-flex gap-2">
+                                                    <button class="btn btn-outline-primary btn-sm" onclick="openEditGallery({{ $g->id }}, '{{ $g->alt_text }}', {{ $g->order }}, {{ $g->is_active?1:0 }})"><i class="fas fa-pen"></i></button>
+                                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteGallery({{ $g->id }})"><i class="fas fa-trash"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                                @if(($galleryImages ?? collect())->isEmpty())
+                                    <p class="text-muted">No gallery images yet. Add one.</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Image Management Info -->
                     <div class="card mt-4">
                         <div class="card-header">
@@ -183,6 +216,77 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-upload me-2"></i>Update AI Image
                         </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Gallery Image Modal -->
+    <div class="modal fade" id="addGalleryImageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Gallery Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addGalleryForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Image</label>
+                            <input type="file" class="form-control" name="image" accept="image/*" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Alt Text</label>
+                            <input type="text" class="form-control" name="alt_text" placeholder="optional">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Order</label>
+                            <input type="number" class="form-control" name="order" min="1" placeholder="auto">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Gallery Image Modal -->
+    <div class="modal fade" id="editGalleryImageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Gallery Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editGalleryForm" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="id" id="edit_gallery_id">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Replace Image</label>
+                            <input type="file" class="form-control" name="image" accept="image/*">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Alt Text</label>
+                            <input type="text" class="form-control" name="alt_text" id="edit_gallery_alt">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Order</label>
+                            <input type="number" class="form-control" name="order" id="edit_gallery_order" min="1">
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="1" id="edit_gallery_active" name="is_active">
+                            <label class="form-check-label" for="edit_gallery_active">Active</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </form>
             </div>
@@ -273,6 +377,48 @@
                 submitBtn.disabled = false;
             });
         });
+
+        // Gallery JS
+        document.getElementById('addGalleryForm')?.addEventListener('submit', function(e){
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('{{ route('admin.gallery.add') }}', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
+            }).then(r=>r.json()).then(d=>{
+                if(d.success){ showNotification('Image added','success'); setTimeout(()=>location.reload(),800); } else { showNotification('Failed to add','error'); }
+            }).catch(()=>showNotification('Error adding','error'));
+        });
+
+        function openEditGallery(id, alt, order, active){
+            document.getElementById('edit_gallery_id').value = id;
+            document.getElementById('edit_gallery_alt').value = alt || '';
+            document.getElementById('edit_gallery_order').value = order || 1;
+            document.getElementById('edit_gallery_active').checked = !!active;
+            new bootstrap.Modal(document.getElementById('editGalleryImageModal')).show();
+        }
+
+        document.getElementById('editGalleryForm')?.addEventListener('submit', function(e){
+            e.preventDefault();
+            const id = document.getElementById('edit_gallery_id').value;
+            const formData = new FormData(this);
+            fetch(`/admin/gallery/${id}/update`, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
+            }).then(r=>r.json()).then(d=>{
+                if(d.success){ showNotification('Image updated','success'); setTimeout(()=>location.reload(),800); } else { showNotification('Failed to update','error'); }
+            }).catch(()=>showNotification('Error updating','error'));
+        });
+
+        function deleteGallery(id){
+            if(!confirm('Delete this image?')) return;
+            fetch(`/admin/gallery/${id}/delete`, { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } })
+            .then(r=>r.json()).then(d=>{
+                if(d.success){ showNotification('Image deleted','success'); setTimeout(()=>location.reload(),800); } else { showNotification('Failed to delete','error'); }
+            }).catch(()=>showNotification('Error deleting','error'));
+        }
 
         // Notification function
         function showNotification(message, type) {

@@ -7,27 +7,18 @@
     <h2 class="section-title">Image's</h2>
 
     <div class="work__container bd-grid">
-        <a href="" class="work__img">
-            <img src="{{ asset('assets/img/Garden Irrigation System.png') }}" alt="">
-        </a>
-        <a href="" class="work__img">
-            <img src="{{ asset('assets/img/IMG_20231125_130024.jpg') }}" alt="">
-        </a>
-        <a href="" class="work__img">
-            <img src="{{ asset('assets/img/IMG_20231214_030304.jpg') }}" alt="">
-        </a>
-        <a href="" class="work__img">
-            <img src="{{ asset('assets/img/VID_20231002_115152.jpg') }}" alt="">
-        </a>
-        <a href="" class="work__img">
-            <img src="{{ asset('assets/img/IMG_20230917_154548.jpg') }}" alt="">
-        </a>
-        <a href="" class="work__img">
-            <img src="{{ asset('assets/img/WhatsApp Image 2024-06-14 at 01.31.24_f257e063.jpg') }}" alt="">
-        </a>
-        <a href="" class="work__img">
-            <img src="{{ asset('assets/img/IMG_20240205_155749.jpg') }}" alt="">
-        </a>
+        @forelse($images as $img)
+            <div class="work__item">
+                <a href="{{ asset('storage/' . $img->image_path) }}" class="work__img" target="_blank">
+                    <img src="{{ asset('storage/' . $img->image_path) }}" alt="{{ $img->alt_text }}">
+                </a>
+                @if($img->alt_text && $img->alt_text !== '—' && trim($img->alt_text) !== '')
+                    <p class="work__caption">{{ $img->alt_text }}</p>
+                @endif
+            </div>
+        @empty
+            <p style="grid-column: 1 / -1; text-align:center">No images yet.</p>
+        @endforelse
     </div>
 </section>
 @endsection

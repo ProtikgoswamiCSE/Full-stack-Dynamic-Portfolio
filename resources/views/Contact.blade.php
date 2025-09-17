@@ -17,9 +17,22 @@
     </div>
 
     <div class="contact__container bd-grid">
-        <form action="" class="contact__form">
-            <input type="text" placeholder="Name" class="contact__input" required>
-            <input type="email" placeholder="Email" class="contact__input" required>
+        @if(session('success'))
+            <div class="alert alert-success" role="alert">{{ session('success') }}</div>
+        @endif
+        @if($errors->any())
+            <div class="alert alert-danger" role="alert">
+                <ul style="margin:0; padding-left:18px;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        <form action="{{ route('contact.store') }}" method="POST" class="contact__form">
+            @csrf
+            <input type="text" name="name" placeholder="Name" class="contact__input" required>
+            <input type="email" name="email" placeholder="Email" class="contact__input" required>
             <textarea name="message" id="message" cols="0" rows="10" class="contact__input" placeholder="Your message..." required></textarea>
             <input type="submit" value="Send" class="contact__button button">
         </form>

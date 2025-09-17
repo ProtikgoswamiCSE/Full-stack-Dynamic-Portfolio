@@ -13,6 +13,7 @@ use App\Models\AboutContent;
 use App\Models\Academic;
 use App\Models\ProfileImageSetting;
 use App\Models\AiImage;
+use App\Models\GalleryImage;
 use App\Models\Project;
 use App\Models\Work;
 use Illuminate\Support\Facades\DB;
@@ -66,9 +67,48 @@ class AdminController extends Controller
     public function editImage() 
     { 
         $aiImage = \App\Models\AiImage::getActiveImageForPage('skills');
-        return view('admin.edit-image', compact('aiImage')); 
+        $galleryImages = GalleryImage::ordered()->get();
+        return view('admin.edit-image', compact('aiImage', 'galleryImages')); 
     }
-    public function editContact() { return view('admin.edit-contact'); }
+    public function editContact() {
+        $messages = \App\Models\ContactMessage::orderByDesc('created_at')->get();
+        return view('admin.edit-contact', compact('messages'));
+    }
+
+    public function deleteContactMessage($id)
+    {
+        try {
+            $message = \App\Models\ContactMessage::findOrFail($id);
+            $message->delete();
+            return back()->with('success', 'Message deleted');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Delete failed: ' . $e->getMessage());
+        }
+    }
+
+    public function bulkDeleteContactMessages(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer'
+        ]);
+        try {
+            \App\Models\ContactMessage::whereIn('id', $request->ids)->delete();
+            return back()->with('success', 'Selected messages deleted');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Bulk delete failed: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteAllContactMessages()
+    {
+        try {
+            \App\Models\ContactMessage::query()->delete();
+            return back()->with('success', 'All messages deleted');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Delete all failed: ' . $e->getMessage());
+        }
+    }
     public function editFooter() {
         $footer = Footer::getActive();
         $socialLinks = FooterSocialLink::getAllOrdered();
@@ -1225,6 +1265,66 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error updating AI image: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Gallery images CRUD
+     */
+    public function addGalleryImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|file|mimes:jpeg,png,jpg,gif|max:5120',
+            'alt_text' => 'nullable|string|max:255',
+            'order' => 'nullable|integer|min:1',
+        ]);
+
+        $imagePath = $request->file('image')->store('gallery', 'public');
+
+        $gallery = new GalleryImage();
+        $gallery->image_path = $imagePath;
+        $gallery->alt_text = $request->alt_text;
+        $gallery->order = $request->order ?? (GalleryImage::max('order') + 1);
+        $gallery->is_active = true;
+        $gallery->save();
+
+        return response()->json(['success' => true, 'message' => 'Image added', 'id' => $gallery->id]);
+    }
+
+    public function updateGalleryImage(Request $request, $id)
+    {
+        $request->validate([
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:5120',
+            'alt_text' => 'nullable|string|max:255',
+            'order' => 'nullable|integer|min:1',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $gallery = GalleryImage::findOrFail($id);
+
+        if ($request->hasFile('image')) {
+            if ($gallery->image_path) {
+                \Storage::disk('public')->delete($gallery->image_path);
+            }
+            $gallery->image_path = $request->file('image')->store('gallery', 'public');
+        }
+
+        if ($request->filled('alt_text')) $gallery->alt_text = $request->alt_text;
+        if ($request->filled('order')) $gallery->order = (int)$request->order;
+        if ($request->has('is_active')) $gallery->is_active = (bool)$request->is_active;
+
+        $gallery->save();
+
+        return response()->json(['success' => true, 'message' => 'Image updated']);
+    }
+
+    public function deleteGalleryImage($id)
+    {
+        $gallery = GalleryImage::findOrFail($id);
+        if ($gallery->image_path) {
+            \Storage::disk('public')->delete($gallery->image_path);
+        }
+        $gallery->delete();
+        return response()->json(['success' => true, 'message' => 'Image deleted']);
     }
 
     public function getAiImage()

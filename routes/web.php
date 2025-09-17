@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\ContactController;
 
 
 Route::get('/', function () {
@@ -36,7 +37,8 @@ Route::get('/project', function () {
     return view('project');
 });
 Route::get('/Image', function () {
-    return view('Image');
+    $images = \App\Models\GalleryImage::active()->ordered()->get();
+    return view('Image', compact('images'));
 });
 Route::get('/academic', function () {
     return view('academic');
@@ -44,6 +46,7 @@ Route::get('/academic', function () {
 Route::get('/contact', function () {
     return view('contact');
 });
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
 // API route to get current profile settings (for frontend refresh)
 Route::get('/api/profile-settings', function () {
@@ -145,6 +148,11 @@ Route::prefix('admin')->middleware(['admin.auth', 'web'])->group(function () {
     Route::get('/edit-footer', [AdminController::class, 'editFooter'])->name('admin.edit-footer');
     Route::post('/update-footer', [AdminController::class, 'updateFooter'])->name('admin.footer.update');
     
+    // Contact Messages Management
+    Route::post('/contact-messages/{id}/delete', [AdminController::class, 'deleteContactMessage'])->name('admin.contact.delete');
+    Route::post('/contact-messages/bulk-delete', [AdminController::class, 'bulkDeleteContactMessages'])->name('admin.contact.bulk-delete');
+    Route::post('/contact-messages/delete-all', [AdminController::class, 'deleteAllContactMessages'])->name('admin.contact.delete-all');
+    
     // Footer Social Links Management
     Route::post('/footer/social/add', [AdminController::class, 'addFooterSocialLink'])->name('admin.footer.social.add');
     Route::post('/footer/social/{id}/update', [AdminController::class, 'updateFooterSocialLink'])->name('admin.footer.social.update');
@@ -166,6 +174,11 @@ Route::prefix('admin')->middleware(['admin.auth', 'web'])->group(function () {
     // AI Image Management
     Route::post('/ai-image/update', [AdminController::class, 'updateAiImage'])->name('admin.ai-image.update');
     Route::get('/ai-image/get', [AdminController::class, 'getAiImage'])->name('admin.ai-image.get');
+
+    // Gallery Images Management
+    Route::post('/gallery/add', [AdminController::class, 'addGalleryImage'])->name('admin.gallery.add');
+    Route::post('/gallery/{id}/update', [AdminController::class, 'updateGalleryImage'])->name('admin.gallery.update');
+    Route::post('/gallery/{id}/delete', [AdminController::class, 'deleteGalleryImage'])->name('admin.gallery.delete');
     
     // Project Management
     Route::post('/project/add', [AdminController::class, 'addProject'])->name('admin.project.add');
