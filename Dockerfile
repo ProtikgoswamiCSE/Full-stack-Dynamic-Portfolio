@@ -109,11 +109,29 @@ RUN echo '#!/bin/sh' > /start.sh && \
     echo 'SESSION_LIFETIME=120' >> /start.sh && \
     echo 'EOF' >> /start.sh && \
     echo '' >> /start.sh && \
-    echo '# Run Laravel optimizations' >> /start.sh && \
+    echo '# Run Laravel setup and optimizations' >> /start.sh && \
     echo 'cd /var/www/html' >> /start.sh && \
-    echo 'php artisan config:cache' >> /start.sh && \
-    echo 'php artisan route:cache' >> /start.sh && \
-    echo 'php artisan view:cache' >> /start.sh && \
+    echo '' >> /start.sh && \
+    echo '# Ensure storage directories exist and are writable' >> /start.sh && \
+    echo 'mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views' >> /start.sh && \
+    echo 'chown -R nginx:nginx storage bootstrap/cache' >> /start.sh && \
+    echo 'chmod -R 775 storage bootstrap/cache' >> /start.sh && \
+    echo '' >> /start.sh && \
+    echo '# Run database migrations' >> /start.sh && \
+    echo 'php artisan migrate --force || echo "Migration failed, continuing..."' >> /start.sh && \
+    echo '' >> /start.sh && \
+    echo '# Seed database if needed' >> /start.sh && \
+    echo 'php artisan db:seed --force || echo "Seeding failed, continuing..."' >> /start.sh && \
+    echo '' >> /start.sh && \
+    echo '# Clear and cache configurations' >> /start.sh && \
+    echo 'php artisan config:clear || echo "Config clear failed"' >> /start.sh && \
+    echo 'php artisan cache:clear || echo "Cache clear failed"' >> /start.sh && \
+    echo 'php artisan view:clear || echo "View clear failed"' >> /start.sh && \
+    echo 'php artisan route:clear || echo "Route clear failed"' >> /start.sh && \
+    echo '' >> /start.sh && \
+    echo 'php artisan config:cache || echo "Config cache failed"' >> /start.sh && \
+    echo 'php artisan route:cache || echo "Route cache failed"' >> /start.sh && \
+    echo 'php artisan view:cache || echo "View cache failed"' >> /start.sh && \
     echo '' >> /start.sh && \
     echo '# Start services' >> /start.sh && \
     echo 'php-fpm82 -D' >> /start.sh && \

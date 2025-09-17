@@ -6,7 +6,13 @@
 
 <main class="l-main">
     <section class="home bd-grid" id="home">
-        @php $animEnabled = \App\Models\HomeContent::getContent('animation_enabled', '1') === '1'; @endphp
+        @php 
+            try {
+                $animEnabled = \App\Models\HomeContent::getContent('animation_enabled', '1') === '1';
+            } catch (\Throwable $e) {
+                $animEnabled = true; // Default to enabled
+            }
+        @endphp
         @if($animEnabled)
         <style>
         .bee-overlay{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.8}
@@ -16,12 +22,25 @@
         <canvas id="bee-canvas" class="bee-overlay"></canvas>
         @endif
         <div class="home__data">
-            <h1 class="home__title">{!! \App\Models\HomeContent::getContent('title', 'Hi there,<br>I\'m <span class="home__title-color">Protik Goswami</span><br>Web Designer') !!}</h1>
-            <p class="home__subtitle">{!! \App\Models\HomeContent::getContent('subtitle', 'Passionate about creating amazing web experiences') !!}</p>
+            @php
+                try {
+                    $title = \App\Models\HomeContent::getContent('title', 'Hi there,<br>I\'m <span class="home__title-color">Protik Goswami</span><br>Web Designer');
+                    $subtitle = \App\Models\HomeContent::getContent('subtitle', 'Passionate about creating amazing web experiences');
+                } catch (\Throwable $e) {
+                    $title = 'Hi there,<br>I\'m <span class="home__title-color">Protik Goswami</span><br>Web Designer';
+                    $subtitle = 'Passionate about creating amazing web experiences';
+                }
+            @endphp
+            <h1 class="home__title">{!! $title !!}</h1>
+            <p class="home__subtitle">{!! $subtitle !!}</p>
             <ul class="home__title_li">
                 @php
-                    $skills = \App\Models\HomeContent::getContent('skills_list', "* Network Security Specialist\n* Programming\n* UI/UX Design\n* Artificial Intelligence");
-                    $skillsArray = explode("\n", $skills);
+                    try {
+                        $skills = \App\Models\HomeContent::getContent('skills_list', "* Network Security Specialist\n* Programming\n* UI/UX Design\n* Artificial Intelligence");
+                        $skillsArray = explode("\n", $skills);
+                    } catch (\Throwable $e) {
+                        $skillsArray = ["* Network Security Specialist", "* Programming", "* UI/UX Design", "* Artificial Intelligence"];
+                    }
                 @endphp
                 @foreach($skillsArray as $skill)
                     @if(trim($skill) !== '')
