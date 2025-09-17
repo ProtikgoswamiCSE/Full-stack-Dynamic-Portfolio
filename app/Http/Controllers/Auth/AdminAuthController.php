@@ -31,13 +31,32 @@ class AdminAuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:6',
+            'login_code' => 'required|string',
         ]);
+
+        // Check fixed login code requirement
+        $requiredCode = config('services.admin_login_code', '15-5841');
+        if (trim((string)$request->login_code) !== (string)$requiredCode) {
+            return back()->withErrors([
+                'login_code' => 'Invalid login code.',
+            ])->onlyInput('email');
+        }
 
         $credentials = $request->only('email', 'password');
         $remember = $request->has('remember');
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
+            // Update last login timestamp
+            try {
+                $user = Auth::user();
+                if ($user) {
+                    $user->last_login_at = now();
+                    $user->save();
+                }
+            } catch (\Exception $e) {
+                // Silently ignore tracking errors
+            }
             
             return redirect()->intended(route('admin.dashboard'))
                 ->with('success', 'Welcome back! You have successfully logged in.');
@@ -68,12 +87,19 @@ class AdminAuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Password::min(8)],
+            'register_code' => 'required|string',
         ]);
 
         if ($validator->fails()) {
             return back()
                 ->withErrors($validator)
                 ->withInput();
+        }
+
+        // Validate register code matches the configured code
+        $requiredCode = config('services.admin_login_code', '15-5841');
+        if (trim((string)$request->register_code) !== (string)$requiredCode) {
+            return back()->withErrors(['register_code' => 'Invalid registration code.'])->withInput();
         }
 
         $user = User::create([

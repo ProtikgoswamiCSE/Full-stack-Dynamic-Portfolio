@@ -63,6 +63,12 @@
                     <a class="nav-link" href="{{ route('admin.edit-footer') }}">
                         <i class="fas fa-shoe-prints me-2"></i> Edit Footer
                     </a>
+                    <a class="nav-link" href="{{ route('admin.data-management') }}">
+                        <i class="fas fa-database me-2"></i> Data Management
+                    </a>
+                    <a class="nav-link" href="{{ route('admin.login-details') }}">
+                        <i class="fas fa-user-shield me-2"></i> Login Details
+                    </a>
                     <a class="nav-link" href="/" target="_blank">
                         <i class="fas fa-external-link-alt me-2"></i> View Site
                     </a>

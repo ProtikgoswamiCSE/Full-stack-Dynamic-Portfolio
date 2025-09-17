@@ -193,6 +193,21 @@
                 @enderror
             </div>
             
+            <div class="form-floating">
+                <input type="text"
+                       class="form-control @error('login_code') is-invalid @enderror"
+                       id="login_code"
+                       name="login_code"
+                       placeholder="Login Code"
+                       required>
+                <label for="login_code">
+                    <i class="fas fa-key me-2"></i>Login Code
+                </label>
+                @error('login_code')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
             <div class="form-check mb-3">
                 <input class="form-check-input" 
                        type="checkbox" 

@@ -250,6 +250,21 @@
                 @enderror
             </div>
             
+            <div class="form-floating">
+                <input type="text" 
+                       class="form-control @error('register_code') is-invalid @enderror" 
+                       id="register_code" 
+                       name="register_code" 
+                       placeholder="Register Code"
+                       required>
+                <label for="register_code">
+                    <i class="fas fa-key me-2"></i>Register Code
+                </label>
+                @error('register_code')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
             <button type="submit" class="btn btn-register">
                 <i class="fas fa-user-plus me-2"></i>Create Account
             </button>

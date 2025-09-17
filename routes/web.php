@@ -112,6 +112,7 @@ Route::prefix('admin')->group(function () {
 // Protected Admin Routes (require authentication)
 Route::prefix('admin')->middleware(['admin.auth', 'web'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/login-details', [AdminController::class, 'loginDetails'])->name('admin.login-details');
     Route::get('/edit-home', [AdminController::class, 'editHome'])->name('admin.edit-home');
     Route::post('/update-home', [AdminController::class, 'updateHome'])->name('admin.update-home');
     Route::post('/update-profile-image', [AdminController::class, 'updateProfileImage'])->name('admin.update-profile-image');
@@ -186,6 +187,10 @@ Route::prefix('admin')->middleware(['admin.auth', 'web'])->group(function () {
     Route::post('/project/{id}/delete', [AdminController::class, 'deleteProject'])->name('admin.project.delete');
     Route::post('/project/{id}/toggle', [AdminController::class, 'toggleProject'])->name('admin.project.toggle');
     Route::get('/project/{id}', [AdminController::class, 'getProject'])->name('admin.project.get');
+
+    // Security Settings: Admin login code and user management
+    Route::post('/security/login-code', [AdminController::class, 'updateLoginCode'])->name('admin.security.update-login-code');
+    Route::delete('/security/users/{id}', [AdminController::class, 'deleteUser'])->name('admin.security.delete-user');
     
     // Work Management
     Route::post('/work/add', [AdminController::class, 'addWork'])->name('admin.work.add');

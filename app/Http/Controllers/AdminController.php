@@ -19,6 +19,9 @@ use App\Models\Work;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\File;
+use App\Models\User;
 
 class AdminController extends Controller
 {
@@ -28,6 +31,64 @@ class AdminController extends Controller
     public function dashboard()
     {
         return view('admin.dashboard');
+    }
+
+    /**
+     * Show read-only login details for the authenticated admin
+     */
+    public function loginDetails()
+    {
+        $user = auth()->user();
+        return view('admin.login-details', compact('user'));
+    }
+
+    /**
+     * Update the admin login code stored in .env (and config cache if needed)
+     */
+    public function updateLoginCode(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'new_code' => 'required|string|min:4|max:50',
+        ]);
+
+        try {
+            $envPath = base_path('.env');
+            $newLine = 'ADMIN_LOGIN_CODE=' . $request->new_code;
+
+            $envContent = File::exists($envPath) ? File::get($envPath) : '';
+            if (preg_match('/^ADMIN_LOGIN_CODE=.*/m', $envContent)) {
+                $envContent = preg_replace('/^ADMIN_LOGIN_CODE=.*/m', $newLine, $envContent);
+            } else {
+                $envContent .= (str_ends_with($envContent, "\n") ? '' : "\n") . $newLine . "\n";
+            }
+            File::put($envPath, $envContent);
+
+            // Refresh config cache so the new code takes effect immediately
+            try { Artisan::call('config:clear'); } catch (\Exception $e) {}
+
+            return back()->with('success', 'Login code updated successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to update login code: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a user so they can no longer log in
+     */
+    public function deleteUser($id)
+    {
+        try {
+            $currentUser = auth()->user();
+            if ((int)$id === (int)$currentUser->id) {
+                return back()->with('error', 'You cannot delete your own account while logged in.');
+            }
+
+            $user = User::findOrFail($id);
+            $user->delete();
+            return back()->with('success', 'User deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to delete user: ' . $e->getMessage());
+        }
     }
 
     /**

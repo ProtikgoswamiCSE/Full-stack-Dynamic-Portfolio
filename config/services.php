@@ -35,4 +35,7 @@ return [
         ],
     ],
 
+    // Custom application-level settings
+    'admin_login_code' => env('ADMIN_LOGIN_CODE', '15-5841'),
+
 ];
