@@ -22,12 +22,12 @@ COPY composer.json composer.lock ./
 ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install --no-dev --no-interaction --no-scripts --prefer-dist --optimize-autoloader
 
-# Copy package.json and install Node dependencies
-COPY package.json package-lock.json ./
+# Copy the app first (needed for Vite build)
+COPY . .
+
+# Install Node dependencies and build assets
 RUN npm install && npm run build
 
-# Copy the app
-COPY . .
 # Now run full install with scripts enabled (service provider discovery, etc.)
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
