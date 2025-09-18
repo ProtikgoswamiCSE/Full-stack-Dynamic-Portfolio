@@ -91,7 +91,7 @@ RUN echo '#!/bin/sh' > /start.sh && \
     echo '' >> /start.sh && \
     echo '# Generate APP_KEY if not set' >> /start.sh && \
     echo 'if [ -z "$APP_KEY" ]; then' >> /start.sh && \
-    echo '    export APP_KEY=$(php -r "echo base64_encode(random_bytes(32));")' >> /start.sh && \
+    echo '    export APP_KEY="base64:$(php -r "echo base64_encode(random_bytes(32));")"' >> /start.sh && \
     echo 'fi' >> /start.sh && \
     echo '' >> /start.sh && \
     echo '# Set production environment variables' >> /start.sh && \
@@ -99,6 +99,7 @@ RUN echo '#!/bin/sh' > /start.sh && \
     echo 'export APP_DEBUG=${APP_DEBUG:-false}' >> /start.sh && \
     echo 'export DB_CONNECTION=${DB_CONNECTION:-sqlite}' >> /start.sh && \
     echo 'export DB_DATABASE=${DB_DATABASE:-/var/www/html/database/database.sqlite}' >> /start.sh && \
+    echo 'export PORT=${PORT:-8080}' >> /start.sh && \
     echo '' >> /start.sh && \
     echo '# Create .env file' >> /start.sh && \
     echo 'cat > /var/www/html/.env << EOF' >> /start.sh && \
@@ -154,6 +155,9 @@ RUN echo '#!/bin/sh' > /start.sh && \
     echo 'php artisan config:cache || echo "Config cache failed"' >> /start.sh && \
     echo 'php artisan route:cache || echo "Route cache failed"' >> /start.sh && \
     echo 'php artisan view:cache || echo "View cache failed"' >> /start.sh && \
+    echo '' >> /start.sh && \
+    echo '# Configure nginx to listen on Render $PORT' >> /start.sh && \
+    echo 'sed -i "s/listen 80 default_server;/listen ${PORT} default_server;/" /etc/nginx/conf.d/default.conf' >> /start.sh && \
     echo '' >> /start.sh && \
     echo '# Start services' >> /start.sh && \
     echo 'php-fpm82 -D' >> /start.sh && \
