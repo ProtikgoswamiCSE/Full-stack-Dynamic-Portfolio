@@ -1176,7 +1176,7 @@
                             @if(isset($aiImage) && $aiImage)
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="ai-image-preview">
+                                        <div class="ai-image-preview" id="ai-image-preview-container" style="padding: 15px; border-radius: 10px; background-color: #ffffff; transition: background-color 0.3s ease;">
                                             <img src="{{ asset('storage/' . $aiImage->image_path) }}" 
                                                  alt="{{ $aiImage->alt_text }}" 
                                                  class="img-fluid rounded" 
@@ -1207,12 +1207,14 @@
                                 </div>
                             @else
                                 <div class="text-center py-4">
-                                    <i class="fas fa-robot fa-3x text-muted mb-3"></i>
-                                    <h5 class="text-muted">No AI Image Set</h5>
-                                    <p class="text-muted">Upload an AI-generated image for the skills page</p>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateAiImageModal">
-                                        <i class="fas fa-upload me-2"></i>Upload AI Image
-                                    </button>
+                                    <div class="ai-image-preview" id="ai-image-preview-container" style="padding: 15px; border-radius: 10px; background-color: #ffffff; transition: background-color 0.3s ease; min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                        <i class="fas fa-robot fa-3x text-muted mb-3"></i>
+                                        <h5 class="text-muted">No AI Image Set</h5>
+                                        <p class="text-muted">Upload an AI-generated image for the skills page</p>
+                                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateAiImageModal">
+                                            <i class="fas fa-upload me-2"></i>Upload AI Image
+                                        </button>
+                                    </div>
                                 </div>
                             @endif
                         </div>
@@ -1242,6 +1244,11 @@
                             <label for="ai_alt_text" class="form-label">Alt Text</label>
                             <input type="text" class="form-control" id="ai_alt_text" name="alt_text" placeholder="Describe the image for accessibility">
                             <div class="form-text">Optional: Describe the image for screen readers</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ai_background_color" class="form-label">Background Color</label>
+                            <input type="color" class="form-control form-control-color" id="ai_background_color" name="background_color" value="#ffffff">
+                            <div class="form-text">Choose the background color for the AI image container</div>
                         </div>
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
@@ -2159,6 +2166,33 @@
                 updateProfilePreview();
             }
 
+            // AI Image background color live preview - same approach as profile colors
+            const aiBgColorInput = document.getElementById('ai_background_color');
+            if (aiBgColorInput) {
+                aiBgColorInput.addEventListener('input', updateAiImagePreview);
+                aiBgColorInput.addEventListener('change', updateAiImagePreview);
+                // Initialize preview
+                updateAiImagePreview();
+            }
+
+            // Re-setup AI preview when modal is shown
+            const updateAiImageModal = document.getElementById('updateAiImageModal');
+            if (updateAiImageModal) {
+                updateAiImageModal.addEventListener('shown.bs.modal', function() {
+                    const aiBgColorInput = document.getElementById('ai_background_color');
+                    if (aiBgColorInput) {
+                        // Remove old listeners by cloning
+                        const newInput = aiBgColorInput.cloneNode(true);
+                        aiBgColorInput.parentNode.replaceChild(newInput, aiBgColorInput);
+                        // Add fresh listeners
+                        newInput.addEventListener('input', updateAiImagePreview);
+                        newInput.addEventListener('change', updateAiImagePreview);
+                        // Update preview
+                        updateAiImagePreview();
+                    }
+                });
+            }
+
             // Setup drag and drop
             setupDragAndDrop();
 
@@ -2208,6 +2242,22 @@
                     console.error('Error refreshing AI image:', error);
                     showNotification('Error refreshing AI image', 'error');
                 });
+        }
+
+        // AI Image Background Color Live Preview - works exactly like shadow color
+        function updateAiImagePreview() {
+            try {
+                const bgColorInput = document.getElementById('ai_background_color');
+                const previewContainer = document.getElementById('ai-image-preview-container');
+                
+                if (bgColorInput && previewContainer) {
+                    const bgColor = bgColorInput.value || '#ffffff';
+                    previewContainer.style.backgroundColor = bgColor;
+                    previewContainer.style.transition = 'background-color 0.3s ease';
+                }
+            } catch (error) {
+                console.error('Error updating AI image preview:', error);
+            }
         }
 
         // Handle AI image form submission
