@@ -932,7 +932,7 @@
                                                 </mask>
                                                 <g mask="url(#mask0-preview)">
                                                     <path d="M9.19024 145.964C34.0253 76.5814 114.865 54.7299 184.111 29.4823C245.804 6.98884 311.86 -14.9503 370.735 14.143C431.207 44.026 467.948 107.508 477.191 174.311C485.897 237.229 454.931 294.377 416.506 344.954C373.74 401.245 326.068 462.801 255.442 466.189C179.416 469.835 111.552 422.137 65.1576 361.805C17.4835 299.81 -17.1617 219.583 9.19024 145.964Z" fill="var(--bg-color-preview)"/>
-                                                    <image class="home__blob-img-preview" x="15" y="25" href="{{ $profileSettings->profile_image ? asset('storage/' . $profileSettings->profile_image) : asset('assets/img/protik.png') }}" width="550" height="550" alt="Profile Preview" style="border: 3px solid var(--border-color-preview); border-radius: 50%; cursor: pointer;" onclick="zoomImage(this)" onerror="this.onerror=null; this.href='{{ asset('assets/img/protik.png') }}';"/>
+                                                    <image class="home__blob-img-preview" x="15" y="25" href="{{ $profileSettings->profile_image ? asset('storage/' . $profileSettings->profile_image) : asset('assets/img/protik.png') }}" width="550" height="550" alt="Profile Preview" style="border: 3px solid var(--border-color-preview); border-radius: 50%; cursor: pointer;" onclick="zoomImage(this)" onerror="this.onerror=null; this.href=FALLBACK_IMAGE_URL;" />
                                                 </g>
                                             </svg>
                                             <div class="mt-3">
@@ -989,7 +989,7 @@
                                                          alt="Current Profile" 
                                                          class="current-profile-img" 
                                                          id="current-profile-img"
-                                                         onerror="this.onerror=null; this.src='{{ asset('assets/img/protik.png') }}'; this.alt='Default Profile';">
+                                                         onerror="this.onerror=null; this.src=FALLBACK_IMAGE_URL; this.alt='Default Profile';" />
                                                     <div class="mt-2">
                                                         <div class="d-flex align-items-center justify-content-center gap-2">
                                                             <i class="fas fa-file-image me-1" style="color: #667eea;"></i>
@@ -1001,7 +1001,7 @@
                                                          alt="Default Profile" 
                                                          class="current-profile-img" 
                                                          id="current-profile-img"
-                                                         onerror="this.onerror=null; this.src='{{ asset('assets/img/protik.png') }}';">
+                                                         onerror="this.onerror=null; this.src=FALLBACK_IMAGE_URL;" />
                                                     <div class="mt-2">
                                                         <div class="d-flex align-items-center justify-content-center gap-2">
                                                             <i class="fas fa-image me-1" style="color: #6c757d;"></i>
@@ -1176,7 +1176,7 @@
                             @if(isset($aiImage) && $aiImage)
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="ai-image-preview">
+                                        <div class="ai-image-preview" id="ai-image-preview-container" style="padding: 15px; border-radius: 10px; background-color: #ffffff; transition: background-color 0.3s ease;">
                                             <img src="{{ asset('storage/' . $aiImage->image_path) }}" 
                                                  alt="{{ $aiImage->alt_text }}" 
                                                  class="img-fluid rounded" 
@@ -1207,12 +1207,14 @@
                                 </div>
                             @else
                                 <div class="text-center py-4">
-                                    <i class="fas fa-robot fa-3x text-muted mb-3"></i>
-                                    <h5 class="text-muted">No AI Image Set</h5>
-                                    <p class="text-muted">Upload an AI-generated image for the skills page</p>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateAiImageModal">
-                                        <i class="fas fa-upload me-2"></i>Upload AI Image
-                                    </button>
+                                    <div class="ai-image-preview" id="ai-image-preview-container" style="padding: 15px; border-radius: 10px; background-color: #ffffff; transition: background-color 0.3s ease; min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                        <i class="fas fa-robot fa-3x text-muted mb-3"></i>
+                                        <h5 class="text-muted">No AI Image Set</h5>
+                                        <p class="text-muted">Upload an AI-generated image for the skills page</p>
+                                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateAiImageModal">
+                                            <i class="fas fa-upload me-2"></i>Upload AI Image
+                                        </button>
+                                    </div>
                                 </div>
                             @endif
                         </div>
@@ -1242,6 +1244,11 @@
                             <label for="ai_alt_text" class="form-label">Alt Text</label>
                             <input type="text" class="form-control" id="ai_alt_text" name="alt_text" placeholder="Describe the image for accessibility">
                             <div class="form-text">Optional: Describe the image for screen readers</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ai_background_color" class="form-label">Background Color</label>
+                            <input type="color" class="form-control form-control-color" id="ai_background_color" name="background_color" value="#ffffff">
+                            <div class="form-text">Choose the background color for the AI image container</div>
                         </div>
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
@@ -1307,7 +1314,6 @@
                 </div>
                 <form id="editSocialLinkForm" method="POST">
                     @csrf
-                    @method('PUT')
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="edit_platform" class="form-label">Platform</label>
@@ -1439,6 +1445,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Fallback image URL
+        const FALLBACK_IMAGE_URL = '{{ asset("assets/img/protik.png") }}';
         // Live preview functionality
         function updateTitlePreview() {
             try {
@@ -1530,7 +1538,28 @@
                     document.getElementById('edit_order').value = linkData.order || 1;
                     document.getElementById('edit_is_active').checked = linkData.is_active || false;
                     
-                    document.getElementById('editSocialLinkForm').action = `{{ url('admin/social') }}/${id}/update`;
+                    // Set form action URL
+                    const baseUrl = '{{ url("/") }}';
+                    const form = document.getElementById('editSocialLinkForm');
+                    form.action = `${baseUrl}/admin/social/${id}/update`;
+                    
+                    // Add form submit handler to ensure is_active is always set
+                    form.addEventListener('submit', function(e) {
+                        const checkbox = document.getElementById('edit_is_active');
+                        // Remove any existing hidden input first
+                        const existingHidden = this.querySelector('input[name="is_active"][type="hidden"]');
+                        if (existingHidden) {
+                            existingHidden.remove();
+                        }
+                        // Add hidden input with value 0 if checkbox is unchecked
+                        if (!checkbox.checked) {
+                            const hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.name = 'is_active';
+                            hiddenInput.value = '0';
+                            this.appendChild(hiddenInput);
+                        }
+                    });
                     
                     new bootstrap.Modal(document.getElementById('editSocialLinkModal')).show();
                 } else {
@@ -1547,20 +1576,15 @@
                 try {
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `{{ url('admin/social') }}/${id}/delete`;
+                    const baseUrl = '{{ url("/") }}';
+                    form.action = `${baseUrl}/admin/social/${id}/delete`;
                     
                     const csrfToken = document.createElement('input');
                     csrfToken.type = 'hidden';
                     csrfToken.name = '_token';
                     csrfToken.value = '{{ csrf_token() }}';
                     
-                    const methodField = document.createElement('input');
-                    methodField.type = 'hidden';
-                    methodField.name = '_method';
-                    methodField.value = 'DELETE';
-                    
                     form.appendChild(csrfToken);
-                    form.appendChild(methodField);
                     document.body.appendChild(form);
                     form.submit();
                 } catch (error) {
@@ -1688,7 +1712,7 @@
                 };
                 currentImg.onerror = function() {
                     console.log('Current image failed to load, using fallback');
-                    this.src = '{{ asset('assets/img/protik.png') }}';
+                    this.src = FALLBACK_IMAGE_URL;
                 };
             }
             
@@ -1698,7 +1722,7 @@
                 };
                 previewImg.onerror = function() {
                     console.log('Preview image failed to load, using fallback');
-                    this.href = '{{ asset('assets/img/protik.png') }}';
+                    this.href = FALLBACK_IMAGE_URL;
                 };
             }
 
@@ -2142,6 +2166,33 @@
                 updateProfilePreview();
             }
 
+            // AI Image background color live preview - same approach as profile colors
+            const aiBgColorInput = document.getElementById('ai_background_color');
+            if (aiBgColorInput) {
+                aiBgColorInput.addEventListener('input', updateAiImagePreview);
+                aiBgColorInput.addEventListener('change', updateAiImagePreview);
+                // Initialize preview
+                updateAiImagePreview();
+            }
+
+            // Re-setup AI preview when modal is shown
+            const updateAiImageModal = document.getElementById('updateAiImageModal');
+            if (updateAiImageModal) {
+                updateAiImageModal.addEventListener('shown.bs.modal', function() {
+                    const aiBgColorInput = document.getElementById('ai_background_color');
+                    if (aiBgColorInput) {
+                        // Remove old listeners by cloning
+                        const newInput = aiBgColorInput.cloneNode(true);
+                        aiBgColorInput.parentNode.replaceChild(newInput, aiBgColorInput);
+                        // Add fresh listeners
+                        newInput.addEventListener('input', updateAiImagePreview);
+                        newInput.addEventListener('change', updateAiImagePreview);
+                        // Update preview
+                        updateAiImagePreview();
+                    }
+                });
+            }
+
             // Setup drag and drop
             setupDragAndDrop();
 
@@ -2191,6 +2242,22 @@
                     console.error('Error refreshing AI image:', error);
                     showNotification('Error refreshing AI image', 'error');
                 });
+        }
+
+        // AI Image Background Color Live Preview - works exactly like shadow color
+        function updateAiImagePreview() {
+            try {
+                const bgColorInput = document.getElementById('ai_background_color');
+                const previewContainer = document.getElementById('ai-image-preview-container');
+                
+                if (bgColorInput && previewContainer) {
+                    const bgColor = bgColorInput.value || '#ffffff';
+                    previewContainer.style.backgroundColor = bgColor;
+                    previewContainer.style.transition = 'background-color 0.3s ease';
+                }
+            } catch (error) {
+                console.error('Error updating AI image preview:', error);
+            }
         }
 
         // Handle AI image form submission

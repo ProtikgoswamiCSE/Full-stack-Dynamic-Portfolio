@@ -10,7 +10,7 @@ git clone <your_repo_url>
 cd <your_project_folder>
 
 # Install PHP dependencies
-composer install
+                                                  composer install
 
 # Create .env file with proper configuration
 @"
@@ -33,38 +33,38 @@ SESSION_LIFETIME=120
 "@ | Out-File -FilePath .env -Encoding utf8
 
 # Generate application key
-php artisan key:generate
+                                                   php artisan key:generate
 
 # ========================================
 # 2. DATABASE SETUP COMMANDS
 # ========================================
 
 # Run migrations and seeders
-php artisan migrate --seed
+                                                    php artisan migrate --seed
 
 # If you encounter database errors, rollback and re-run:
 # php artisan migrate:rollback --step=1
 # php artisan migrate
 
 # Create storage link
-php artisan storage:link
+                                                   php artisan storage:link
 
 # ========================================
 # 3. FRONTEND SETUP COMMANDS
 # ========================================
 
 # Install Node.js dependencies
-npm install
+                                                     npm install
 
 # Build frontend assets
-npm run build
+                                                    npm run build
 
 # ========================================
 # 4. SERVER START COMMANDS
 # ========================================
 
 # Start Laravel development server
-php artisan serve --host=0.0.0.0 --port=8000
+                                                     php artisan serve --host=0.0.0.0 --port=8000
 
 # Alternative: Use setup.bat script
 # cmd /c setup.bat
