@@ -43,7 +43,7 @@
                     <a class="nav-link" href="{{ route('admin.edit-about') }}">
                         <i class="fas fa-user me-2"></i> Edit About
                     </a>
-                    <a class="nav-link active" href="{{ route('admin.edit-achivement') }}">
+                    <a class="nav-link active" href="{{ route('admin.edit-achievement') }}">
                         <i class="fas fa-trophy me-2"></i> Edit Achievements
                     </a>
                     <a class="nav-link" href="{{ route('admin.edit-academic') }}">
@@ -86,7 +86,7 @@
                         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#achievementModal">
                             <i class="fas fa-plus me-2"></i>Add New Achievement
                         </button>
-                        <a href="/achivement" target="_blank" class="btn btn-outline-primary ms-2">
+                        <a href="/achievement" target="_blank" class="btn btn-outline-primary ms-2">
                             <i class="fas fa-eye me-2"></i>View Achievements Page
                         </a>
                     </div>

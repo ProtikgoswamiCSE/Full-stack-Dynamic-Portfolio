@@ -15,8 +15,8 @@ Route::get('/about', function () {
     return view('about');
 });
 
-Route::get('/achivement', function () {
-    return view('Achivement');
+Route::get('/achievement', function () {
+    return view('Achievement');
 });
 Route::get('/skills', function () {
     return view('skills');
@@ -26,12 +26,6 @@ Route::get('/work', function () {
     return view('work');
 });
 
-// Public Work Management Routes (no authentication required)
-Route::post('/work/add', [AdminController::class, 'addWork'])->name('work.add');
-Route::post('/work/{id}/update', [AdminController::class, 'updateWork'])->name('work.update');
-Route::post('/work/{id}/delete', [AdminController::class, 'deleteWork'])->name('work.delete');
-Route::post('/work/{id}/toggle', [AdminController::class, 'toggleWork'])->name('work.toggle');
-Route::get('/work/{id}', [AdminController::class, 'getWork'])->name('work.get');
 
 Route::get('/project', function () {
     return view('project');
@@ -140,7 +134,7 @@ Route::prefix('admin')->middleware(['admin.auth', 'web'])->group(function () {
     Route::post('/about/{id}/update', [AdminController::class, 'updateAboutContent'])->name('admin.about.update');
     Route::post('/about/{id}/delete', [AdminController::class, 'deleteAboutContent'])->name('admin.about.delete');
     Route::post('/about/{id}/toggle', [AdminController::class, 'toggleAboutContent'])->name('admin.about.toggle');
-    Route::get('/edit-achivement', [AdminController::class, 'editAchivement'])->name('admin.edit-achivement');
+    Route::get('/edit-achievement', [AdminController::class, 'editAchievement'])->name('admin.edit-achievement');
     Route::get('/edit-academic', [AdminController::class, 'editAcademic'])->name('admin.edit-academic');
     Route::get('/edit-work', [AdminController::class, 'editWork'])->name('admin.edit-work');
     Route::get('/edit-project', [AdminController::class, 'editProject'])->name('admin.edit-project');

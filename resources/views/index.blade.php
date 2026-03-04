@@ -96,7 +96,7 @@
                         <li class="nav__item"><a href={{ url('/') }} class="nav__link {{ $isHome ? 'active-link' : '' }}">Home</a></li>
                         <li class="nav__item"><a href={{ url('/about') }} class="nav__link {{ request()->is('about') ? 'active-link' : '' }}">About</a></li>
                         <li class="nav__item"><a href={{ url('/skills') }} class="nav__link {{ request()->is('skills') ? 'active-link' : '' }}">Skills</a></li>
-                        <li class="nav__item"><a href={{ url('/achivement') }} class="nav__link {{ request()->is('achivement') ? 'active-link' : '' }}">Achivement</a></li>
+                        <li class="nav__item"><a href={{ url('/achievement') }} class="nav__link {{ request()->is('achievement') ? 'active-link' : '' }}">Achievement</a></li>
                         <li class="nav__item"><a href={{ url('/academic') }} class="nav__link {{ request()->is('academic') ? 'active-link' : '' }}">Academic</a></li>
                         <li class="nav__item dropdown">
                             <a href="#" class="nav__link dropdown-toggle {{ request()->is('work') || request()->is('project') ? 'active-link' : '' }}" id="workDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -127,8 +127,8 @@
         <!--===== ABOUT =====-->
             @yield('about-section')
 
-        <!--===== Achivement =====-->
-            @yield('achivement-section')
+        <!--===== Achievement =====-->
+            @yield('achievement-section')
         <!--===== WORK =====-->
          @yield('work-section')
         <!--===== PROJECT =====-->

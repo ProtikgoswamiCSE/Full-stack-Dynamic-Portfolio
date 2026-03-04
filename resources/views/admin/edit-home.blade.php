@@ -739,7 +739,7 @@
                         <a class="nav-link" href="{{ route('admin.edit-about') }}">
                             <i class="fas fa-user me-2"></i> Edit About
                         </a>
-                        <a class="nav-link" href="{{ route('admin.edit-achivement') }}">
+                        <a class="nav-link" href="{{ route('admin.edit-achievement') }}">
                             <i class="fas fa-trophy me-2"></i> Edit Achievements
                         </a>
                         <a class="nav-link" href="{{ route('admin.edit-academic') }}">

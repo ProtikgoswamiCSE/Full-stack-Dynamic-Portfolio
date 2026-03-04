@@ -109,9 +109,9 @@ class AdminController extends Controller
         $aboutContents = AboutContent::getAllOrdered();
         return view('admin.edit-about', compact('aboutContents')); 
     }
-    public function editAchivement() { 
+    public function editAchievement() { 
         $achievements = Achievement::getAllOrdered();
-        return view('admin.edit-achivement', compact('achievements')); 
+        return view('admin.edit-achievement', compact('achievements')); 
     }
     public function editAcademic() { 
         $academics = Academic::getAllOrdered();

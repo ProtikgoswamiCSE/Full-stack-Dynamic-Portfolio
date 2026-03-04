@@ -580,7 +580,7 @@ function addWork() {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Adding...';
     submitBtn.disabled = true;
     
-    fetch('{{ route("work.add") }}', {
+    fetch('{{ route("admin.work.add") }}', {
         method: 'POST',
         body: formData,
         headers: {
@@ -619,7 +619,7 @@ function editWork(workId) {
     // Show loading state
     showAlert('info', 'Loading work experience data...');
     
-    fetch(`{{ url('work') }}/${workId}`)
+    fetch(`/admin/work/${workId}`)
     .then(response => {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -666,7 +666,7 @@ function updateWork() {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
     submitBtn.disabled = true;
     
-    fetch(`{{ url('work') }}/${workId}/update`, {
+    fetch(`/admin/work/${workId}/update`, {
         method: 'POST',
         body: formData,
         headers: {
@@ -703,7 +703,7 @@ function updateWork() {
 
 function deleteWork(workId) {
     if (confirm('Are you sure you want to delete this work experience?')) {
-        fetch(`{{ url('work') }}/${workId}/delete`, {
+        fetch(`/admin/work/${workId}/delete`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),

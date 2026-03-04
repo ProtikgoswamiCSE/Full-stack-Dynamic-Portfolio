@@ -160,7 +160,7 @@
                         <a class="nav-link" href="{{ route('admin.edit-about') }}">
                             <i class="fas fa-user me-2"></i> Edit About
                         </a>
-                        <a class="nav-link" href="{{ route('admin.edit-achivement') }}">
+                        <a class="nav-link" href="{{ route('admin.edit-achievement') }}">
                             <i class="fas fa-trophy me-2"></i> Edit Achievements
                         </a>
                         <a class="nav-link" href="{{ route('admin.edit-academic') }}">
@@ -277,7 +277,7 @@
                                     <i class="fas fa-trophy text-success card-icon"></i>
                                     <h5 class="card-title">Manage Achievements</h5>
                                     <p class="card-text">Add, edit, or remove your achievements and certificates.</p>
-                                    <a href="{{ route('admin.edit-achivement') }}" class="btn btn-success">
+                                    <a href="{{ route('admin.edit-achievement') }}" class="btn btn-success">
                                         <i class="fas fa-arrow-right me-2"></i>Manage
                                     </a>
                                 </div>

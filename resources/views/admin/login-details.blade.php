@@ -42,7 +42,7 @@
                     <a class="nav-link {{ $currentRoute === 'admin.edit-about' ? 'active' : '' }}" href="{{ route('admin.edit-about') }}">
                         <i class="fas fa-user me-2"></i> Edit About
                     </a>
-                    <a class="nav-link {{ $currentRoute === 'admin.edit-achivement' ? 'active' : '' }}" href="{{ route('admin.edit-achivement') }}">
+                    <a class="nav-link {{ $currentRoute === 'admin.edit-achievement' ? 'active' : '' }}" href="{{ route('admin.edit-achievement') }}">
                         <i class="fas fa-trophy me-2"></i> Edit Achievements
                     </a>
                     <a class="nav-link {{ $currentRoute === 'admin.edit-academic' ? 'active' : '' }}" href="{{ route('admin.edit-academic') }}">
