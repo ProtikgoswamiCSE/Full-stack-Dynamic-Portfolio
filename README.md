@@ -1,3 +1,5 @@
+https://protikgoswami.info/
+
 # Protik Goswami - Full Stack Dynamic Portfolio
 
 A modern, responsive portfolio website built with Laravel 12, featuring dark mode toggle, smooth animations, and a professional design.
